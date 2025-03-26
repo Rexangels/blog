@@ -1,3 +1,4 @@
+# blog/views.py
 from django.views.generic import ListView, DetailView, CreateView
 from .models import Post
 from django.urls import reverse_lazy

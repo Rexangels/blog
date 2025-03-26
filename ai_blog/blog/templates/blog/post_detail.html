@@ -1,0 +1,30 @@
+<!-- blog/templates/blog/post_detail.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }} - AI Blog{% endblock %}
+
+{% block content %}
+  <article>
+    <h1>{{ post.title }}</h1>
+    <p class="text-muted">By {{ post.author.username }} on {{ post.created_at|date:"M d, Y" }}</p>
+    {% if post.featured_image %}
+      <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid mb-3">
+    {% endif %}
+    <div>
+      {{ post.content|linebreaks }}
+    </div>
+  </article>
+
+  <!-- Comments Section (basic static version for now) -->
+  <section class="mt-5">
+    <h3>Comments</h3>
+    {% for comment in post.comments.all %}
+      <div class="mb-3 border p-2">
+        <p><strong>{{ comment.author }}</strong> <small class="text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</small></p>
+        <p>{{ comment.content }}</p>
+      </div>
+    {% empty %}
+      <p>No comments yet.</p>
+    {% endfor %}
+  </section>
+{% endblock %}
