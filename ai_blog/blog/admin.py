@@ -1,6 +1,6 @@
 # blog/admin.py
 from django.contrib import admin
-from .models import Post, Category, Tag, Comment
+from .models import Post, Category, Tag,Newsletter,SponsoredContent
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -18,9 +18,3 @@ class CategoryAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
-
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('author', 'post', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('author', 'content')

@@ -1,6 +1,6 @@
 # blog/urls.py
 from django.urls import path
-from .views import SearchResultsView
+from .views import AdvancedSearchView
 from .views import (
     PostListView, 
     PostDetailView, 
@@ -19,5 +19,5 @@ urlpatterns = [
 
 
 urlpatterns += [
-    path('search/', SearchResultsView.as_view(), name='search'),
+    path('search/', AdvancedSearchView.as_view(), name='search'),
 ]

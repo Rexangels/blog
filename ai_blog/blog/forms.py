@@ -1,7 +1,7 @@
 # blog/forms.py
 from django import forms
 from django.utils.text import slugify
-from .models import Post
+from .models import Post,Newsletter
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -59,3 +59,21 @@ class CommentForm(forms.ModelForm):
             'author': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+
+class NewsletterForm(forms.ModelForm):
+    class Meta:
+        model = Newsletter
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Enter your email',
+                'class': 'form-control'
+            })
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if Newsletter.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already subscribed")
+        return email
