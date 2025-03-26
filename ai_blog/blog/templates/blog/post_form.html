@@ -4,10 +4,56 @@
 {% block title %}New Post - AI Blog{% endblock %}
 
 {% block content %}
-  <h1>Create New Post</h1>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Publish</button>
-  </form>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-4">Create New Post</h1>
+      
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          <strong>Error:</strong> Please correct the errors below.
+        </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          {{ form.title.label_tag }}
+          {{ form.title }}
+          {% if form.title.errors %}
+            <div class="text-danger">
+              {{ form.title.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.content.label_tag }}
+          {{ form.content }}
+          {% if form.content.errors %}
+            <div class="text-danger">
+              {{ form.content.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.categories.label_tag }}
+          {{ form.categories }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.tags.label_tag }}
+          {{ form.tags }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.featured_image.label_tag }}
+          {{ form.featured_image }}
+        </div>
+
+        <button type="submit" class="btn btn-success">Publish</button>
+      </form>
+    </div>
+  </div>
 {% endblock %}

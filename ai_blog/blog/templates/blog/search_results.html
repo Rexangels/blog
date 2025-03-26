@@ -1,0 +1,28 @@
+<!-- blog/templates/blog/search_results.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+  <h1>Search Results</h1>
+  
+  <form class="mb-4" method="get" action="{% url 'blog:search' %}">
+    <div class="input-group">
+      <input type="text" class="form-control" name="q" placeholder="Search posts..." 
+             value="{{ request.GET.q }}">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+  </form>
+
+  {% if posts %}
+    {% for post in posts %}
+      <article class="mb-3">
+        <h2><a href="{% url 'blog:post_detail' slug=post.slug %}">{{ post.title }}</a></h2>
+        <p class="text-muted">By {{ post.author.username }} on {{ post.created_at|date:"M d, Y" }}</p>
+        <p>{{ post.content|truncatewords:30 }}</p>
+      </article>
+    {% endfor %}
+  {% else %}
+    <p>No results found.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,36 @@
+<!-- ai_blog/accounts/templates/accounts/register.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="text-center">Register</h2>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                  <div class="text-danger">
+                    {{ field.errors }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+          </form>
+        </div>
+        <div class="card-footer text-center">
+          <p>Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
