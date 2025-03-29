@@ -1,13 +1,14 @@
 # blog/views.py
-from django.views.generic import (
+from .models import Post, Category, Tag, Newsletter, AdSpace, Comment
+from .forms import PostForm, NewsletterForm, CommentForm
+from django.views.generic import ( 
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
 from django.urls import reverse_lazy
+from django.urls import reverse_lazy
 from .models import Post, Category, Tag, Newsletter, AdSpace
-from .forms import PostForm, NewsletterForm
-
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -46,6 +47,11 @@ class PostDetailView(DetailView):
             categories__in=self.object.categories.all()
         ).exclude(pk=self.object.pk)[:3]
         return context
+
+class PostCreateView(CreateView):
+    model = Post
+    form_class = PostForm
+    success_url = reverse_lazy('blog:home')
 
 class AdvancedSearchView(ListView):
     model = Post
