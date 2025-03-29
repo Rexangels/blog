@@ -128,3 +128,25 @@ class SponsoredContent(models.Model):
     
     def __str__(self):
         return f"{self.title} - Sponsored by {self.sponsor}"
+
+# Add to blog/models.py
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Comment by {self.author} on {self.post.title}"
+
+
+# Add to blog/models.py
+class PageVisit(models.Model):
+    page_url = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.TextField(blank=True)
+    referrer = models.URLField(blank=True, null=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Visit to {self.page_url} at {self.visited_at}"

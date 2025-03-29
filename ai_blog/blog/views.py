@@ -84,3 +84,15 @@ class NewsletterSignupView(CreateView):
         response = super().form_valid(form)
         # Implement email service integration here
         return response
+
+# Add to blog/views.py
+class CommentCreateView(CreateView):
+    model = Comment
+    form_class = CommentForm
+    
+    def form_valid(self, form):
+        form.instance.post = Post.objects.get(slug=self.kwargs['slug'])
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'slug': self.kwargs['slug']})
