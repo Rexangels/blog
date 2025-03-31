@@ -52,6 +52,27 @@ class PostCreateView(CreateView):
     model = Post
     form_class = PostForm
     success_url = reverse_lazy('blog:home')
+    
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            
+            if 'publish' in request.POST:
+                post.status = 'published'
+                post.published_date = timezone.now()
+            
+            post.save()
+            form.save_m2m()  # Save many-to-many fields
+            
+            messages.success(request, 'Post created successfully!')
+            return redirect('blog:post_detail', slug=post.slug)
+    else:
+        form = PostForm()
+    return render(request, 'blog/post_form.html', {'form': form})
 
 class AdvancedSearchView(ListView):
     model = Post

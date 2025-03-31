@@ -40,7 +40,11 @@ class SponsoredContentAdmin(admin.ModelAdmin):
     search_fields = ('title', 'sponsor', 'content')
     list_filter = ('is_active', 'sponsored_date')
 
-@admin.register(AdSpace)
-class AdSpaceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'is_active')
-    list_filter = ('location', 'is_active')
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'status', 'created_at')
+    list_filter = ('status', 'created_at', 'categories')
+    search_fields = ('title', 'content')
+    prepopulated_fields = {'slug': ('title',)}
+    date_hierarchy = 'created_at'

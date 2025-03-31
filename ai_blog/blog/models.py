@@ -46,7 +46,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200, verbose_name='Post Title')
     slug = models.SlugField(unique=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    content = RichTextUploadingField(verbose_name='Post Content')
+    content = RichTextUploadingField()#(verbose_name='Post Content')
     
     # SEO Fields
     meta_description = models.TextField(
@@ -83,6 +83,12 @@ class Post(models.Model):
         choices=VISIBILITY_CHOICES, 
         default='public'
     )
+    STATUS_CHOICES = (
+    ('draft', 'Draft'),
+    ('published', 'Published'),)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    published_date = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
