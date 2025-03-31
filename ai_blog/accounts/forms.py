@@ -2,6 +2,11 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import Profile
+
 
 class CustomUserCreationForm(UserCreationForm):
     # accounts/forms.py (extend your CustomUserCreationForm)
@@ -28,3 +33,27 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
         return user
 
+
+
+# Add these new forms for profile update
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'location', 'birth_date', 'profile_picture']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control'})
+        }

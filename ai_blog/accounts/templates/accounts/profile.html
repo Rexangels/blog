@@ -1,0 +1,75 @@
+<!-- accounts/templates/accounts/profile.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2>Profile</h2>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-4 text-center">
+            {% if user.profile.profile_picture %}
+              <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="max-width: 150px;">
+            {% else %}
+              <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; margin: 0 auto;">
+                <h1>{{ user.username.0|upper }}</h1>
+              </div>
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <h3>{{ user.get_full_name|default:user.username }}</h3>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+            {% if user.profile.location %}
+              <p><strong>Location:</strong> {{ user.profile.location }}</p>
+            {% endif %}
+            {% if user.profile.birth_date %}
+              <p><strong>Birth Date:</strong> {{ user.profile.birth_date|date:"F j, Y" }}</p>
+            {% endif %}
+          </div>
+        </div>
+        
+        {% if user.profile.bio %}
+          <div class="mb-4">
+            <h4>Bio</h4>
+            <p>{{ user.profile.bio }}</p>
+          </div>
+        {% endif %}
+        
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">Edit Profile</a>
+      </div>
+    </div>
+    
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3>My Posts</h3>
+      </div>
+      <div class="card-body">
+        {% if user_posts %}
+          <div class="list-group">
+            {% for post in user_posts %}
+              <a href="{% url 'blog:post_detail' slug=post.slug %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{ post.title }}</h5>
+                  <small>{{ post.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mb-1">{{ post.content|striptags|truncatechars:100 }}</p>
+                <small>Status: {{ post.get_status_display }}</small>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>You haven't created any posts yet.</p>
+          <a href="{% url 'blog:post_create' %}" class="btn btn-success">Create New Post</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

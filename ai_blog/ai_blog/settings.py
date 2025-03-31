@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3u8j6tn26n+27p$a#9r=#pu&*3dyw%%7^f0++!jfdhjz=vadwp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['8000-idx-bloggit-1743239560964.cluster-wxkvpdxct5e4sxx4nbgdioeb46.cloudworkstations.dev','127.0.0.1']
 
 
 # Application definition

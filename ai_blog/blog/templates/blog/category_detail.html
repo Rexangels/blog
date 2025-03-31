@@ -1,0 +1,137 @@
+<!-- blog/templates/blog/category_detail.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ category.name }} - AI Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Main content area -->
+  <div class="col-lg-8">
+    <h1 class="mb-4">Posts in Category: {{ category.name }}</h1>
+    
+    {% if category.description %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <p class="mb-0">{{ category.description }}</p>
+        </div>
+      </div>
+    {% endif %}
+    
+    {% for post in posts %}
+      <div class="card mb-4">
+        <div class="row g-0">
+          {% if post.featured_image %}
+            <div class="col-md-4">
+              <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start" alt="{{ post.title }}">
+            </div>
+          {% endif %}
+          <div class="col-md-{% if post.featured_image %}8{% else %}12{% endif %}">
+            <div class="card-body">
+              <h3 class="card-title">
+                <a href="{% url 'blog:post_detail' slug=post.slug %}" class="text-decoration-none">
+                  {{ post.title }}
+                </a>
+              </h3>
+              <div class="mb-2 text-muted">
+                <i class="bi bi-person"></i> {{ post.author.username }}
+                <span class="mx-1">|</span>
+                <i class="bi bi-calendar"></i> {{ post.created_at|date:"M d, Y" }}
+                <span class="mx-1">|</span>
+                <i class="bi bi-chat"></i> {{ post.comment_count }} comments
+              </div>
+              <p class="card-text">{{ post.content|safe|truncatewords_html:30 }}</p>
+              <a href="{% url 'blog:post_detail' slug=post.slug %}" class="btn btn-outline-primary">Continue Reading</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert alert-info">
+        <h4>No posts in this category yet.</h4>
+        <p>Check back soon for new content!</p>
+      </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1">&laquo; First</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+  
+  <!-- Sidebar -->
+  <div class="col-lg-4">
+    <!-- Search widget -->
+    <div class="card mb-4">
+      <div class="card-header">Search</div>
+      <div class="card-body">
+        <form action="{% url 'blog:search_results' %}" method="get">
+          <div class="input-group">
+            <input class="form-control" type="text" name="q" placeholder="Search posts..." required>
+            <button class="btn btn-outline-secondary" type="submit">Go!</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Categories widget -->
+    <div class="card mb-4">
+      <div class="card-header">Categories</div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          {% for cat in categories %}
+          <li>
+            <a href="{% url 'blog:category_detail' slug=cat.slug %}" class="text-decoration-none">{{ cat.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Recent Posts widget -->
+    <div class="card mb-4">
+      <div class="card-header">Recent Posts</div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          {% for recent_post in recent_posts %}
+          <li>
+            <a href="{% url 'blog:post_detail' slug=recent_post.slug %}" class="text-decoration-none">{{ recent_post.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
