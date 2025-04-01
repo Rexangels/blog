@@ -82,7 +82,8 @@ def profile_view(request):
 def profile_edit_view(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        # Change from request.user.profile to request.user.accounts_profile
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.accounts_profile)
         
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
@@ -91,7 +92,8 @@ def profile_edit_view(request):
             return redirect('accounts:profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        # Change from request.user.profile to request.user.accounts_profile
+        profile_form = ProfileUpdateForm(instance=request.user.accounts_profile)
     
     context = {
         'user_form': user_form,

@@ -242,8 +242,8 @@ class Comment(models.Model):
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     user_agent = models.TextField(blank=True)
     
-    # Likes/upvotes
-    likes = models.PositiveIntegerField(default=0)
+    # CHANGED: Renamed to 'like_count' to avoid clash with CommentLike related_name
+    like_count = models.PositiveIntegerField(default=0)
     
     # For ordering - lets you pin important comments
     is_pinned = models.BooleanField(default=False)
@@ -278,6 +278,8 @@ class Comment(models.Model):
         """Mark the comment as spam"""
         self.status = 'spam'
         self.save()
+
+
 # Add to blog/models.py
 class PageVisit(models.Model):
     page_url = models.CharField(max_length=255)
@@ -292,7 +294,7 @@ class PageVisit(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='blog_profile')
     bio = models.TextField(blank=True, max_length=500)
     avatar = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     website = models.URLField(blank=True)
@@ -316,15 +318,16 @@ class UserProfile(models.Model):
     def get_absolute_url(self):
         return reverse('blog:user_profile', kwargs={'username': self.user.username})
 
-# Create profile automatically when a user is created
+# Update signal handlers to use the new related_name
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_blog_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+def save_user_blog_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'blog_profile'):
+        instance.blog_profile.save()
 
 
 # Add to blog/models.py
@@ -354,10 +357,12 @@ class Bookmark(models.Model):
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
 
+
 class CommentLike(models.Model):
     """Model to track users liking comments"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_likes')
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
+    # CHANGED: Updated related_name to 'comment_likes' to avoid clash with Comment.likes field
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_likes')
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

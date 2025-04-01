@@ -1,62 +1,321 @@
-<!-- blog/templates/blog/post_form.html -->
-{% extends 'blog/base.html' %}
+{% extends "blog/base.html" %}
+{% load static %}
 
-{% block title %}New Post - AI Blog{% endblock %}
+{% block title %}
+    {% if form.instance.id %}Edit Post{% else %}Create New Post{% endif %} - AI Blog
+{% endblock %}
+
+{% block meta_description %}
+    {% if form.instance.id %}Edit your existing post on AI Blog.{% else %}Create a new post on AI Blog.{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+    <!-- Include CKEditor styles and scripts -->
+    {{ form.media }}
+    <style>
+        .errorlist{
+            color: red;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        /* Style for tag selection */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            min-height: 38px;
+        }
+        
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-draft {
+            background-color: #ffc107;
+        }
+        
+        .status-published {
+            background-color: #28a745;
+        }
+        
+        .status-archived {
+            background-color: #6c757d;
+        }
+        
+        /* CKEditor customizations */
+        .ck-editor__editable {
+            min-height: 400px;
+        }
+        
+        /* Drag and drop zone */
+        .featured-image-upload {
+            border: 2px dashed #ced4da;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .featured-image-upload:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .featured-image-preview {
+            max-height: 200px;
+            max-width: 100%;
+            margin-top: 10px;
+        }
+        
+        /* Sidebar */
+        .sticky-top {
+            top: 20px;
+        }
+    </style>
+    
+    <!-- Select2 for better multi-select experience -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
 
 {% block content %}
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <h1 class="mb-4">Create New Post</h1>
-      
-      {% if form.errors %}
-        <div class="alert alert-danger">
-          <strong>Error:</strong> Please correct the errors below.
-        </div>
-      {% endif %}
-
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'blog:home' %}">Home</a></li>
+                {% if form.instance.id %}
+                    <li class="breadcrumb-item"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Post</li>
+                {% else %}
+                    <li class="breadcrumb-item active" aria-current="page">Create New Post</li>
+                {% endif %}
+            </ol>
+        </nav>
         
-        <div class="mb-3">
-          {{ form.title.label_tag }}
-          {{ form.title }}
-          {% if form.title.errors %}
-            <div class="text-danger">
-              {{ form.title.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="mb-3">
-          {{ form.content.label_tag }}
-          {{ form.content }}
-          {% if form.content.errors %}
-            <div class="text-danger">
-              {{ form.content.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="mb-3">
-          {{ form.categories.label_tag }}
-          {{ form.categories }}
-        </div>
-
-        <div class="mb-3">
-          {{ form.tags.label_tag }}
-          {{ form.tags }}
-        </div>
-
-        <div class="mb-3">
-          {{ form.featured_image.label_tag }}
-          {{ form.featured_image }}
-        </div>
-
-        <div class="btn-group">
-          <button type="submit" name="draft" class="btn btn-secondary">Save as Draft</button>
-          <button type="submit" name="publish" class="btn btn-success">Publish</button>
-        </div>
-      </form>
+        <h1 class="mb-4">
+            {% if form.instance.id %}
+                <i class="bi bi-pencil-square"></i> Edit Post
+            {% else %}
+                <i class="bi bi-file-earmark-plus"></i> Create New Post
+            {% endif %}
+        </h1>
     </div>
-  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="post-form">
+    {% csrf_token %}
+    <div class="row">
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <!-- Post Title -->
+                    <div class="mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Post Title*</label>
+                        {% if form.title.errors %}
+                            <ul class="errorlist"> {{ form.title.errors|join:"" }} </ul>
+                        {% endif %}
+                        <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" 
+                               class="form-control form-control-lg {% if form.title.errors %}is-invalid{% endif %}" 
+                               value="{{ form.title.value|default:'' }}" required>
+                        {% if form.title.help_text %}
+                            <small class="text-muted">{{ form.title.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Post Content -->
+                    <div class="mb-4">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">Content*</label>
+                        {% if form.content.errors %}
+                            <ul class="errorlist"> {{ form.content.errors|join:"" }} </ul>
+                        {% endif %}
+                        {{ form.content }}
+                        {% if form.content.help_text %}
+                            <small class="text-muted">{{ form.content.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SEO Options -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-search"></i> SEO Options</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Meta Description -->
+                    <div class="mb-3">
+                        <label for="{{ form.meta_description.id_for_label }}" class="form-label">Meta Description</label>
+                        {% if form.meta_description.errors %}
+                            <ul class="errorlist"> {{ form.meta_description.errors|join:"" }} </ul>
+                        {% endif %}
+                        <textarea name="{{ form.meta_description.name }}" id="{{ form.meta_description.id_for_label }}" 
+                                 class="form-control {% if form.meta_description.errors %}is-invalid{% endif %}" 
+                                 rows="2">{{ form.meta_description.value|default:'' }}</textarea>
+                        {% if form.meta_description.help_text %}
+                            <small class="text-muted">{{ form.meta_description.help_text }}</small>
+                        {% endif %}
+                        <div id="meta-description-counter" class="text-end text-muted mt-1">
+                            <small>0/160 characters</small>
+                        </div>
+                    </div>
+                    
+                    <!-- SEO Keywords -->
+                    <div class="mb-3">
+                        <label for="{{ form.seo_keywords.id_for_label }}" class="form-label">SEO Keywords</label>
+                        {% if form.seo_keywords.errors %}
+                            <ul class="errorlist"> {{ form.seo_keywords.errors|join:"" }} </ul>
+                        {% endif %}
+                        <input type="text" name="{{ form.seo_keywords.name }}" id="{{ form.seo_keywords.id_for_label }}" 
+                               class="form-control {% if form.seo_keywords.errors %}is-invalid{% endif %}" 
+                               value="{{ form.seo_keywords.value|default:'' }}">
+                        {% if form.seo_keywords.help_text %}
+                            <small class="text-muted">{{ form.seo_keywords.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- URL Slug -->
+                    <div class="mb-0">
+                        <label for="{{ form.slug.id_for_label }}" class="form-label">URL Slug</label>
+                        {% if form.slug.errors %}
+                            <ul class="errorlist"> {{ form.slug.errors|join:"" }} </ul>
+                        {% endif %}
+                        <div class="input-group">
+                            <span class="input-group-text">/blog/</span>
+                            <input type="text" name="{{ form.slug.name }}" id="{{ form.slug.id_for_label }}" 
+                                  class="form-control {% if form.slug.errors %}is-invalid{% endif %}" 
+                                  value="{{ form.slug.value|default:'' }}" placeholder="post-url-slug">
+                        </div>
+                        <small class="text-muted">Leave blank to auto-generate from title.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <!-- Publish Options -->
+            <div class="card mb-4 sticky-top">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> Publishing Options</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {% if form.status.errors %}
+                            <ul class="errorlist"> {{ form.status.errors|join:"" }} </ul>
+                        {% endif %}
+                        <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}" class="form-select">
+                            {{ form.status }}
+                        </select>
+                    </div>
+                    
+                    <!-- Featured Image -->
+                    <div class="mb-3">
+                        <label for="{{ form.featured_image.id_for_label }}" class="form-label">Featured Image</label>
+                        {% if form.featured_image.errors %}
+                            <ul class="errorlist"> {{ form.featured_image.errors|join:"" }} </ul>
+                        {% endif %}
+                        <div class="featured-image-upload">
+                            <i class="bi bi-cloud-upload-fill" style="font-size: 3rem;"></i>
+                            <p>Drag and drop or click to upload</p>
+                            <input type="file" name="{{ form.featured_image.name }}" id="{{ form.featured_image.id_for_label }}" style="display: none;" accept="image/*">
+                        </div>
+                        {% if form.featured_image.value %}
+                            <img src="{{ form.featured_image.value.url }}" class="featured-image-preview" alt="Featured Image">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="mb-3">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label">Tags</label>
+                        {% if form.tags.errors %}
+                            <ul class="errorlist"> {{ form.tags.errors|join:"" }} </ul>
+                        {% endif %}
+                        <select class="form-select" id="{{ form.tags.id_for_label }}" name="{{ form.tags.name }}" multiple>
+                            {{ form.tags }}
+                        </select>
+                        {% if form.tags.help_text %}
+                            <small class="text-muted">{{ form.tags.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-check-circle"></i> Save Post
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back();">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for the tags field
+        $('#{{ form.tags.id_for_label }}').select2({
+            placeholder: 'Select tags for your post',
+            tags: true,
+        });
+        
+        // Meta description counter
+        const metaDescription = document.getElementById('{{ form.meta_description.id_for_label }}');
+        const metaCounter = document.getElementById('meta-description-counter');
+        
+        metaDescription.addEventListener('input', function() {
+            const length = this.value.length;
+            metaCounter.querySelector('small').textContent = `${length}/160 characters`;
+        });
+        
+        // Featured image upload
+        const fileInput = document.getElementById('{{ form.featured_image.id_for_label }}');
+        const uploadZone = document.querySelector('.featured-image-upload');
+        
+        uploadZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(e) {
+            if(e.target.files.length > 0){
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event){
+                    const imgPreview = document.createElement('img');
+                    imgPreview.src = event.target.result;
+                    imgPreview.classList.add('featured-image-preview');
+                    
+                    if(uploadZone.nextElementSibling.classList.contains('featured-image-preview')){
+                        uploadZone.nextElementSibling.remove();
+                    }
+                    uploadZone.insertAdjacentElement('afterend', imgPreview);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
 {% endblock %}

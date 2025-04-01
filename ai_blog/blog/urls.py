@@ -31,4 +31,13 @@ urlpatterns = [
     
     # Comments
     path('post/<slug:slug>/comment/', views.CommentCreateView.as_view(), name='add_comment'),
+    # User profile
+    path('profile/<str:username>/', views.UserProfileView.as_view(), name='user_profile'),
+    
+    # Bookmarks
+    path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),
+    path('post/<slug:slug>/bookmark/', views.toggle_bookmark, name='post_bookmark'),
+    
+    # Likes
+    path('post/<slug:slug>/like/', views.toggle_like, name='post_like'),
 ]

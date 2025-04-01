@@ -17,6 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.models import User
 from .models import UserProfile, Bookmark, PostLike
+from django.http import JsonResponse
 
 class PostListView(ListView):
     model = Post
@@ -338,4 +339,35 @@ def toggle_like(request, slug):
     
     # If it's an AJAX request, return JSON response
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return Json
+        return JsonResponse({
+            'like_count': post.like_count,
+            'liked': created
+        })
+    
+    # Redirect back to the referring page
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', post.get_absolute_url()))
+
+
+@login_required
+def toggle_comment_like(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    like, created = CommentLike.objects.get_or_create(user=request.user, comment=comment)
+    
+    if not created:
+        # If like already existed, remove it
+        like.delete()
+        comment.likes = max(0, comment.likes - 1)
+    else:
+        comment.likes += 1
+    
+    comment.save()
+    
+    # If it's an AJAX request, return JSON response
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'like_count': comment.likes,
+            'liked': created
+        })
+    
+    # Redirect back to the referring page
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', comment.post.get_absolute_url()))
