@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+CSRF_TRUSTED_ORIGINS = ['https://8000-idx-bloggit-1743239560964.cluster-wxkvpdxct5e4sxx4nbgdioeb46.cloudworkstations.dev']
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

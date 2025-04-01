@@ -12,6 +12,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Count
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView, ListView
+from django.contrib.auth.models import User
+from .models import UserProfile, Bookmark, PostLike
 
 class PostListView(ListView):
     model = Post
@@ -253,3 +258,84 @@ class CommentCreateView(CreateView):
     
     def get_success_url(self):
         return reverse_lazy('blog:post_detail', kwargs={'slug': self.kwargs['slug']})
+
+class UserProfileView(DetailView):
+    model = User
+    template_name = 'blog/user_profile.html'
+    context_object_name = 'profile_user'
+    
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['username'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        
+        # Get user's posts
+        context['user_posts'] = Post.objects.filter(
+            author=user, 
+            status='published',
+            visibility='public'
+        ).order_by('-published_date')
+        
+        # Get user's recent comments
+        context['user_comments'] = Comment.objects.filter(
+            user=user,
+            status='approved'
+        ).order_by('-created_at')[:10]
+        
+        context['categories'] = Category.objects.all()
+        return context
+
+class BookmarkListView(LoginRequiredMixin, ListView):
+    model = Bookmark
+    template_name = 'blog/bookmarks.html'
+    context_object_name = 'bookmarks'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        return Bookmark.objects.filter(user=self.request.user).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
+
+# Add a view for toggling bookmarks
+@login_required
+def toggle_bookmark(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    bookmark, created = Bookmark.objects.get_or_create(user=request.user, post=post)
+    
+    if not created:
+        # If bookmark already existed, remove it
+        bookmark.delete()
+        post.bookmark_count = max(0, post.bookmark_count - 1)
+        messages.success(request, f'Removed {post.title} from your bookmarks.')
+    else:
+        post.bookmark_count += 1
+        messages.success(request, f'Added {post.title} to your bookmarks.')
+    
+    post.save()
+    
+    # Redirect back to the referring page
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', post.get_absolute_url()))
+
+# Add a view for toggling likes
+@login_required
+def toggle_like(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    like, created = PostLike.objects.get_or_create(user=request.user, post=post)
+    
+    if not created:
+        # If like already existed, remove it
+        like.delete()
+        post.like_count = max(0, post.like_count - 1)
+    else:
+        post.like_count += 1
+    
+    post.save()
+    
+    # If it's an AJAX request, return JSON response
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return Json
