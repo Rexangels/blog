@@ -11,7 +11,7 @@
         <h2>Edit Profile</h2>
       </div>
       <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" action="{% url 'accounts:profile_edit' %}">
           {% csrf_token %}
           
           <div class="row">

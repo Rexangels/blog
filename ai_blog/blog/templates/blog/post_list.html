@@ -12,6 +12,7 @@
       <div class="card mb-4 featured-post">
         {% if posts.0.featured_image %}
           <img src="{{ posts.0.featured_image.url }}" class="card-img-top" alt="{{ posts.0.title }}">
+
         {% endif %}
         <div class="card-body">
           <h2 class="card-title">
@@ -32,7 +33,8 @@
       </div>
       
       <!-- Start loop from second post if we have a featured post -->
-      {% with posts_to_display=posts|slice:"1:" %}
+      {% with posts_to_display=posts|slice:"1:" overall_counter=0 %}
+        {% if posts_to_display %}
         {% for post in posts_to_display %}
           <div class="card mb-4">
             <div class="row g-0">
@@ -61,7 +63,16 @@
               </div>
             </div>
           </div>
+          {% if forloop %}
+          {% if overall_counter|add:1|divisibleby:2 %}
+          {% if between_posts_ads %}
+          {% for ad in between_posts_ads %}<div class="card mb-4"><div class="card-body advertisement">{{ ad.ad_code|safe }}</div></div>{% endfor %}
+          {% endif %}
+          {% endif %}
+          {% endif %}
+          {% with overall_counter=overall_counter|add:1 %}{% endwith %}
         {% endfor %}
+        {% endif %}
       {% endwith %}
     {% else %}
       <!-- Regular post loop (no featured post) -->
@@ -95,10 +106,17 @@
         </div>
       {% empty %}
         <div class="alert alert-info">
-          <h4>No posts available.</h4>
-          <p>Check back soon for new content!</p>
+        <h4>No posts available.</h4>
+        <p>Check back soon for new content!</p>
         </div>
       {% endfor %}
+      {% if forloop %}
+      {% if overall_counter|add:1|divisibleby:2 %}
+      {% if between_posts_ads %}
+      {% for ad in between_posts_ads %}<div class="card mb-4"><div class="card-body advertisement">{{ ad.ad_code|safe }}</div></div>{% endfor %}
+      {% endif %}
+      {% endif %}
+        {% endif %}
     {% endif %}
 
     <!-- Pagination -->
@@ -145,7 +163,7 @@
     <div class="card mb-4">
       <div class="card-header">Search</div>
       <div class="card-body">
-        <form action="{% url 'blog:search' %}" method="get">
+        <form action="{% url 'blog:search_results' %}" method="get">
           <div class="input-group">
             <input class="form-control" type="text" name="q" placeholder="Search for..." aria-label="Search for...">
             <button class="btn btn-primary" type="submit">Search</button>

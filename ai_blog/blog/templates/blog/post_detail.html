@@ -241,6 +241,13 @@
           <div class="post-meta-item">
             <i class="bi bi-eye"></i>
             <span>{{ post.view_count }} views</span>
+            <a href="{{ post.get_bookmark_url }}" class="text-decoration-none">
+              {% if is_bookmarked %}
+                <i class="bi bi-bookmark-fill"></i> <span>Remove Bookmark</span>
+              {% else %}
+                <i class="bi bi-bookmark"></i> <span>Bookmark</span>
+              {% endif %}
+            </a>
           </div>
           
           <!-- Social sharing -->
@@ -273,6 +280,13 @@
               <i class="bi bi-tag"></i> {{ tag.name }}
             </a>
           {% endfor %}
+        </div>
+        
+        <!-- Series Information -->
+        <div class="mb-4">
+          {% if post.series %}
+            <p>Part of the <a href="{% url 'blog:series_detail' slug=post.series.slug %}">{{ post.series.title }}</a> series</p>
+          {% endif %}
         </div>
         
         <!-- Content -->
@@ -342,6 +356,16 @@
     
     <!-- Sidebar -->
     <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header">Search</div>
+        <div class="card-body">
+          <form action="{% url 'blog:search_results' %}" method="get">
+            <div class="input-group">
+              <input class="form-control" type="text" name="q" placeholder="Search posts..." required>
+              <button class="btn btn-outline-secondary" type="submit">Go!</button>
+            </div>
+          </form>
+        </div>
       <!-- Related posts -->
       <div class="related-posts mb-4">
         <div class="card-header bg-primary text-white py-3">

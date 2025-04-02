@@ -6,7 +6,7 @@
 {% block content %}
   <h1>Search Results</h1>
   
-  <form class="mb-4" method="get" action="{% url 'blog:search' %}">
+  <form class="mb-4" method="get" action="{% url 'blog:search_results' %}">
     <div class="input-group">
       <input type="text" class="form-control" name="q" placeholder="Search posts..." 
              value="{{ request.GET.q }}">

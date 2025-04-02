@@ -1,0 +1,43 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ series.title }} - AI Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <!-- Main content area -->
+    <div class="col-lg-8">
+      <h1 class="mb-4">{{ series.title }}</h1>
+      {% if series.description %}
+      <p class="lead">{{ series.description }}</p>
+      {% endif %}
+
+      <h2 class="mt-5 mb-3">Posts in this series:</h2>
+      <ul class="list-group">
+        {% for post in posts %}
+        <li class="list-group-item">
+          <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No posts in this series yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Search widget -->
+      <div class="card mb-4">
+        <div class="card-header">Search</div>
+        <div class="card-body">
+          <form action="{% url 'blog:search_results' %}" method="get">
+            <div class="input-group">
+              <input class="form-control" type="text" name="q" placeholder="Search posts..." required>
+              <button class="btn btn-outline-secondary" type="submit">Go!</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

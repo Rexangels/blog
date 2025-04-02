@@ -1,12 +1,14 @@
 # blog/forms.py
 from django import forms
 from django.utils.text import slugify
-from .models import Post,Newsletter
+from .models import Post, Newsletter, Series
+
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'categories', 'tags', 'featured_image']
+        fields = ['title', 'content', 'categories', 'tags', 'featured_image', 'series']
+        
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
@@ -14,6 +16,7 @@ class PostForm(forms.ModelForm):
             'tags': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
+        widgets['series'] = forms.Select(attrs={'class': 'form-control'})
     def clean_title(self):
         title = self.cleaned_data['title']
         if len(title) < 5:

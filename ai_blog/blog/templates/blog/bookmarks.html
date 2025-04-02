@@ -205,6 +205,18 @@
                 </div>
             </div>
         </div>
+        <!-- Search widget -->
+        <div class="card mb-4">
+          <div class="card-header">Search</div>
+          <div class="card-body">
+            <form action="{% url 'blog:search_results' %}" method="get">
+              <div class="input-group">
+                <input class="form-control" type="text" name="q" placeholder="Search posts..." required>
+                <button class="btn btn-outline-secondary" type="submit">Go!</button>
+              </div>
+            </form>
+          </div>
+        </div>
         
         <!-- Categories Filter -->
         <div class="card mb-4">

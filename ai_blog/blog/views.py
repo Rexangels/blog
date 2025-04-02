@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Post, Category, Tag, Newsletter, AdSpace, Comment, PageVisit
 from .forms import PostForm, NewsletterForm, CommentForm
 from django.views.generic import ( 
-    ListView, DetailView, CreateView, UpdateView, DeleteView
+    ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Count
@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.models import User
+from .models import Series
 from .models import UserProfile, Bookmark, PostLike
 from django.http import JsonResponse
 
@@ -36,7 +37,11 @@ class PostListView(ListView):
         context['categories'] = Category.objects.all()
         context['tags'] = Tag.objects.all()
         context['top_posts'] = Post.objects.filter(visibility='public', status='published').order_by('-view_count')[:5]
-        context['ads'] = AdSpace.objects.filter(is_active=True)
+        context['sidebar_ads'] = AdSpace.objects.filter(is_active=True, location='sidebar')
+        context['header_ads'] = AdSpace.objects.filter(is_active=True, location='header')
+        context['between_posts_ads'] = AdSpace.objects.filter(is_active=True, location='between_posts')
+        context['footer_ads'] = AdSpace.objects.filter(is_active=True, location='footer')
+
         context['newsletter_form'] = NewsletterForm()
         return context
 
@@ -76,7 +81,10 @@ class PostDetailView(DetailView):
         
         context['related_posts'] = related_posts
         context['comment_form'] = CommentForm()
-        context['ads'] = AdSpace.objects.filter(is_active=True)
+        context['header_ads'] = AdSpace.objects.filter(is_active=True, location='header')
+        context['sidebar_ads'] = AdSpace.objects.filter(is_active=True, location='sidebar')        
+        context['footer_ads'] = AdSpace.objects.filter(is_active=True, location='footer')
+
         context['newsletter_form'] = NewsletterForm()
         return context
 
@@ -185,8 +193,42 @@ class TagDetailView(ListView):
         tag_slug = self.kwargs['slug']
         context['tag'] = Tag.objects.get(slug=tag_slug)
         context['categories'] = Category.objects.all()
+    model = Post
+    template_name = 'blog/tag_detail.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        tag_slug = self.kwargs['slug']
+        return Post.objects.filter(
+            tags__slug=tag_slug,
+            visibility='public',
+            status='published'
+        ).annotate(
+            comment_count=Count("comments")
+        ).order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = Category.objects.all()
         context['ads'] = AdSpace.objects.filter(is_active=True)
         context['newsletter_form'] = NewsletterForm()
+        return context
+
+class SeriesDetailView(ListView):
+    model = Post
+    template_name = "blog/series_detail.html"
+    context_object_name = "posts"
+    paginate_by = 10
+
+    def get_queryset(self):
+        series_slug = self.kwargs["slug"]
+        return Post.objects.filter(series__slug=series_slug, visibility="public", status="published").order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        series_slug = self.kwargs["slug"]
+        context["series"] = Series.objects.get(slug=series_slug)
         return context
 
 class AdvancedSearchView(ListView):
@@ -371,3 +413,17 @@ def toggle_comment_like(request, pk):
     
     # Redirect back to the referring page
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', comment.post.get_absolute_url()))
+
+
+@login_required
+def update_bookmark_notes(request, pk):
+    bookmark = get_object_or_404(Bookmark, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        notes = request.POST.get('notes', '')
+        bookmark.notes = notes
+        bookmark.save()
+        messages.success(request, "Notes updated successfully.")
+    
+    # Redirect back to bookmarks page
+    return redirect('blog:bookmarks')
