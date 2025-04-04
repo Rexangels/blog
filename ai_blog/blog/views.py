@@ -4,11 +4,12 @@ from django.shortcuts import redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from .models import Post, Category, Tag, Newsletter, AdSpace, Comment, PageVisit
+from .models import Post, Category, Tag, Newsletter, AdSpace, Comment, PageVisit, CommentLike
 from .forms import PostForm, NewsletterForm, CommentForm
 from django.views.generic import ( 
     ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
+from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Count, Max
 from django.urls import reverse_lazy, reverse
@@ -50,6 +51,16 @@ class PostListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self._add_categories_tags_top_posts(context)
+
+         # Add is_liked attribute to each post
+        if self.request.user.is_authenticated:
+            for post in context['posts']:
+                post.is_liked = PostLike.objects.filter(
+                    user=self.request.user, post=post
+                ).exists()
+        else:
+            for post in context['posts']:
+                post.is_liked = False
         
         return context
 
@@ -99,6 +110,20 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         self._add_related_posts(context)
         context['comment_form'] = CommentForm()
+        
+        # Add is_liked attribute to each comment
+        if self.request.user.is_authenticated:
+            for comment in context['post'].comments.all():
+                comment.is_liked = CommentLike.objects.filter(
+                    user=self.request.user, comment=comment
+                ).exists()
+        else:
+            for comment in context['post'].comments.all():
+                comment.is_liked = False
+
+
+        
+
         return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -422,16 +447,16 @@ def toggle_comment_like(request, pk):
     if not created:
         # If like already existed, remove it
         like.delete()
-        comment.likes = max(0, comment.likes - 1)
+        comment.like_count = max(0, comment.like_count - 1)
     else:
-        comment.likes += 1
+        comment.like_count += 1
     
     comment.save()
     
     # If it's an AJAX request, return JSON response
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
-            'like_count': comment.likes,
+            'like_count': comment.like_count,
             'liked': created
         })
     

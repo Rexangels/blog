@@ -34,6 +34,16 @@
             <span class="mx-1">|</span>
             <i class="bi bi-chat"></i> {{ posts.0.comment_count }} comments
           </div>
+          <div class="mb-2 text-muted">
+            <i class="bi bi-heart-fill"></i> {{ posts.0.like_count }}
+            <a href="{% url 'blog:post_like' slug=posts.0.slug %}" class="text-decoration-none">
+              {% if posts.0.is_liked %}
+                <i class="bi bi-heart-fill"></i> <span>Unlike</span>
+              {% else %}
+                <i class="bi bi-heart"></i> <span>Like</span>
+              {% endif %}
+            </a>
+          </div>
           <p class="card-text">{{ posts.0.content|safe|truncatewords_html:50 }}</p>
           <a href="{% url 'blog:post_detail' slug=posts.0.slug %}" class="btn btn-primary">Read More</a>
         </div>
@@ -64,6 +74,15 @@
                     <span class="mx-1">|</span>
                     <i class="bi bi-chat"></i> {{ post.comment_count }} comments
                   </div>
+                  <div class="mb-2 text-muted">
+                    <i class="bi bi-heart-fill"></i> {{ post.like_count }}
+                    <a href="{% url 'blog:post_like' slug=post.slug %}" class="text-decoration-none">
+                      {% if post.is_liked %}
+                        <i class="bi bi-heart-fill"></i> <span>Unlike</span>
+                      {% else %}
+                        <i class="bi bi-heart"></i> <span>Like</span>
+                      {% endif %}
+                    </a>
                   <p class="card-text">{{ post.content|safe|truncatewords_html:30 }}</p>
                   <a href="{% url 'blog:post_detail' slug=post.slug %}" class="btn btn-outline-primary">Continue Reading</a>
                 </div>
@@ -105,6 +124,15 @@
                   <span class="mx-1">|</span>
                   <i class="bi bi-chat"></i> {{ post.comment_count }} comments
                 </div>
+                <div class="mb-2 text-muted">
+                  <i class="bi bi-heart-fill"></i> {{ post.like_count }}
+                  <a href="{% url 'blog:post_like' slug=post.slug %}" class="text-decoration-none">
+                    {% if post.is_liked %}
+                      <i class="bi bi-heart-fill"></i> <span>Unlike</span>
+                    {% else %}
+                      <i class="bi bi-heart"></i> <span>Like</span>
+                    {% endif %}
+                  </a>
                 <p class="card-text">{{ post.content|safe|truncatewords_html:30 }}</p>
                 <a href="{% url 'blog:post_detail' slug=post.slug %}" class="btn btn-outline-primary">Continue Reading</a>
               </div>

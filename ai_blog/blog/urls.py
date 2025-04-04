@@ -47,4 +47,7 @@ urlpatterns = [
     # Likes
     path('post/<slug:slug>/like/', views.toggle_like, name='post_like'),
     path('bookmarks/<int:pk>/update_notes/', views.update_bookmark_notes, name='update_bookmark_notes'),
+    
+    #comment likes
+    path('comment/<int:pk>/like/', views.toggle_comment_like, name='toggle_comment_like'),
 ]

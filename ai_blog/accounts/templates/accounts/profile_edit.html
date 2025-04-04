@@ -1,5 +1,5 @@
-<!-- accounts/templates/accounts/profile_edit.html -->
 {% extends 'blog/base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}Edit Profile{% endblock %}
 
@@ -20,7 +20,7 @@
               
               <div class="mb-3">
                 <label for="id_username" class="form-label">Username</label>
-                {{ user_form.username|add_class:'form-control'|add_placeholder:"Enter your username" }}
+                {% render_field user_form.username class="form-control" placeholder="Enter your username" %}
                 {% if user_form.username.errors %}
                   <div class="text-danger">{{ user_form.username.errors }}</div>
                 {% endif %}
@@ -28,7 +28,7 @@
               
               <div class="mb-3">
                 <label for="id_email" class="form-label">Email</label>
-                {{ user_form.email|add_class:'form-control'|add_placeholder:"Enter your email" }}
+                {% render_field user_form.email class="form-control" placeholder="Enter your email" %}
                 {% if user_form.email.errors %}
                   <div class="text-danger">{{ user_form.email.errors }}</div>
                 {% endif %}
@@ -36,7 +36,7 @@
               
               <div class="mb-3">
                 <label for="id_first_name" class="form-label">First Name</label>
-                {{ user_form.first_name|add_class:'form-control'|add_placeholder:"Enter your first name" }}
+                {% render_field user_form.first_name class="form-control" placeholder="Enter your first name" %}
                 {% if user_form.first_name.errors %}
                   <div class="text-danger">{{ user_form.first_name.errors }}</div>
                 {% endif %}
@@ -44,7 +44,7 @@
               
               <div class="mb-3">
                 <label for="id_last_name" class="form-label">Last Name</label>
-                {{ user_form.last_name|add_class:'form-control'|add_placeholder:"Enter your last name" }}
+                {% render_field user_form.last_name class="form-control" placeholder="Enter your last name" %}
                 {% if user_form.last_name.errors %}
                   <div class="text-danger">{{ user_form.last_name.errors }}</div>
                 {% endif %}
@@ -56,7 +56,7 @@
               
               <div class="mb-3">
                 <label for="id_bio" class="form-label">Bio</label>
-                {{ profile_form.bio|add_class:'form-control'|add_placeholder:"Tell us about yourself"|add_rows:5 }}
+                {% render_field profile_form.bio class="form-control" placeholder="Tell us about yourself" rows=5 %}
                 {% if profile_form.bio.errors %}
                   <div class="text-danger">{{ profile_form.bio.errors }}</div>
                 {% endif %}
@@ -64,7 +64,7 @@
               
               <div class="mb-3">
                 <label for="id_location" class="form-label">Location</label>
-                {{ profile_form.location|add_class:'form-control'|add_placeholder:"Your location" }}
+                {% render_field profile_form.location class="form-control" placeholder="Your location" %}
                 {% if profile_form.location.errors %}
                   <div class="text-danger">{{ profile_form.location.errors }}</div>
                 {% endif %}
@@ -72,7 +72,7 @@
               
               <div class="mb-3">
                 <label for="id_birth_date" class="form-label">Birth Date</label>
-                {{ profile_form.birth_date|add_class:'form-control'|add_placeholder:"YYYY-MM-DD" }}
+                {% render_field profile_form.birth_date class="form-control" placeholder="YYYY-MM-DD" %}
                 {% if profile_form.birth_date.errors %}
                   <div class="text-danger">{{ profile_form.birth_date.errors }}</div>
                 {% endif %}
@@ -80,7 +80,7 @@
               
               <div class="mb-3">
                 <label for="id_profile_picture" class="form-label">Profile Picture</label>
-                {{ profile_form.profile_picture }}
+                {% render_field profile_form.profile_picture class="form-control" %}
                 {% if profile_form.profile_picture.errors %}
                   <div class="text-danger">{{ profile_form.profile_picture.errors }}</div>
                 {% endif %}
@@ -108,10 +108,9 @@
 {% block extra_scripts %}
     {% load static %}
     <script>
-
         // Add custom filters to forms
         django.jQuery('form input, form textarea, form select').each(function() {
-        django.jQuery(this).addClass('form-control');
+            django.jQuery(this).addClass('form-control');
         });
     </script>
 {% endblock %}
