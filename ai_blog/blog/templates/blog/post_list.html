@@ -21,7 +21,14 @@
             </a>
           </h2>
           <div class="mb-2 text-muted">
-            <i class="bi bi-person"></i> {{ posts.0.author.username }}
+             <div class="d-inline-flex align-items-center">
+              {% if posts.0.author.accounts_profile.profile_picture %}
+                <img src="{{ posts.0.author.accounts_profile.profile_picture.url }}" alt="{{ posts.0.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px;">
+              {% else %}
+                <i class="bi bi-person-circle me-2"></i>
+              {% endif %}
+              {{ posts.0.author.username }}
+            </div>
             <span class="mx-1">|</span>
             <i class="bi bi-calendar"></i> {{ posts.0.created_at|date:"M d, Y" }}
             <span class="mx-1">|</span>

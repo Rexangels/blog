@@ -297,7 +297,11 @@
         <!-- Author bio -->
         <div class="author-card">
           <div class="author-avatar">
-            <i class="bi bi-person"></i>
+            {% if post.author.accounts_profile.profile_picture %}
+                <img src="{{ post.author.accounts_profile.profile_picture.url }}" alt="{{ post.author.get_full_name|default:post.author.username }}" class="img-fluid rounded-circle">
+            {% else %}
+                <i class="bi bi-person"></i>
+            {% endif %}
           </div>
           <div class="author-info">
             <h5>{{ post.author.get_full_name|default:post.author.username }}</h5>

@@ -1,7 +1,7 @@
 # blog/urls.py
 from django.urls import path
 from . import views
-from .views import AdvancedSearchView, NewsletterSignupView, SeriesDetailView
+from .views import AdvancedSearchView, NewsletterSignupView, SeriesDetailView, UserProfileUpdateView
 from .views import (
     PostListView, 
     PostDetailView, 
@@ -37,6 +37,8 @@ urlpatterns = [
     path('post/<slug:slug>/comment/', views.CommentCreateView.as_view(), name='add_comment'),
     # User profile
     path('profile/<str:username>/', views.UserProfileView.as_view(), name='user_profile'),
+    path('profile/edit/', UserProfileUpdateView.as_view(), name='profile_edit'),
+
     
     # Bookmarks
     path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),

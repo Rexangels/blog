@@ -1,5 +1,6 @@
 # blog/views.py
-from django.shortcuts import render, redirect
+import logging
+from django.shortcuts import redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -9,16 +10,16 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q, Count
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q, Count, Max
+from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.models import User
 from .models import Series
 from .models import UserProfile, Bookmark, PostLike
+from .forms import UserProfileForm
 from django.http import JsonResponse
+
+logger = logging.getLogger(__name__)
 
 class PostListView(ListView):
     model = Post
@@ -32,17 +33,24 @@ class PostListView(ListView):
             comment_count=Count('comments')
         ).order_by('-created_at')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def _add_categories_tags_top_posts(self, context):
         context['categories'] = Category.objects.all()
         context['tags'] = Tag.objects.all()
-        context['top_posts'] = Post.objects.filter(visibility='public', status='published').order_by('-view_count')[:5]
-        context['sidebar_ads'] = AdSpace.objects.filter(is_active=True, location='sidebar')
-        context['header_ads'] = AdSpace.objects.filter(is_active=True, location='header')
-        context['between_posts_ads'] = AdSpace.objects.filter(is_active=True, location='between_posts')
-        context['footer_ads'] = AdSpace.objects.filter(is_active=True, location='footer')
+        context['top_posts'] = Post.objects.filter(
+            visibility='public', status='published'
+        ).order_by('-view_count')[:5]    
+    
 
+
+
+    
+    def _add_newsletter_form(self, context):
         context['newsletter_form'] = NewsletterForm()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        self._add_categories_tags_top_posts(context)
+        
         return context
 
 class PostDetailView(DetailView):
@@ -50,7 +58,24 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
+    def _add_related_posts(self, context):
+        post = self.object
+        context['related_posts'] = Post.objects.filter(
+            categories__in=post.categories.all(),
+            visibility='public',
+            status='published'
+        ).exclude(pk=post.pk).distinct()[:3]
+
+    def get_object(self, queryset=None):
+      if self.kwargs.get('slug') == 'new':
+          return None
+      return super().get_object(queryset=queryset)
+    
     def get(self, request, *args, **kwargs):
+      
+
+        if self.kwargs.get('slug') == 'new':
+            return redirect('blog:home')
         # Increment view count
         post = self.get_object()
         post.view_count += 1
@@ -68,28 +93,15 @@ class PostDetailView(DetailView):
             )
         
         return super().get(request, *args, **kwargs)
+    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        post = self.object
-        # Get related posts based on categories
-        related_posts = Post.objects.filter(
-            categories__in=post.categories.all(),
-            visibility='public',
-            status='published'
-        ).exclude(pk=post.pk).distinct()[:3]
-        
-        context['related_posts'] = related_posts
+        self._add_related_posts(context)
         context['comment_form'] = CommentForm()
-        context['header_ads'] = AdSpace.objects.filter(is_active=True, location='header')
-        context['sidebar_ads'] = AdSpace.objects.filter(is_active=True, location='sidebar')        
-        context['footer_ads'] = AdSpace.objects.filter(is_active=True, location='footer')
-
-        context['newsletter_form'] = NewsletterForm()
         return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
     
@@ -100,20 +112,28 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         # Check if publish button was clicked
         if 'publish' in self.request.POST:
             post.status = 'published'
-            post.visibility = 'public'
-            post.published_date = timezone.now()
+            post.visibility = 'public'            
+            post.published_date = timezone.now()            
         else:
             post.status = 'draft'
             post.visibility = 'private'
         
         post.save()
+
+        if not post.slug:            
+            post.slug = "-".join(post.title.lower().split())
+            post.save()
         form.save_m2m()  # Save many-to-many fields
         
         messages.success(self.request, 'Post created successfully!')
+        
+        # Debugging: Print slug and redirect URL
+        logger.debug(f"Post slug: {post.slug}")
+        redirect_url = reverse('blog:post_detail', kwargs={'slug': post.slug})
+        logger.debug(f"Redirect URL: {redirect_url}")
         return redirect('blog:post_detail', slug=post.slug)
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
     
@@ -138,7 +158,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == post.author
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
     success_url = reverse_lazy('blog:home')
     template_name = 'blog/post_confirm_delete.html'
     
@@ -168,8 +187,6 @@ class CategoryDetailView(ListView):
         category_slug = self.kwargs['slug']
         context['category'] = Category.objects.get(slug=category_slug)
         context['categories'] = Category.objects.all()
-        context['ads'] = AdSpace.objects.filter(is_active=True)
-        context['newsletter_form'] = NewsletterForm()
         return context
 
 class TagDetailView(ListView):
@@ -193,14 +210,12 @@ class TagDetailView(ListView):
         tag_slug = self.kwargs['slug']
         context['tag'] = Tag.objects.get(slug=tag_slug)
         context['categories'] = Category.objects.all()
-    model = Post
-    template_name = 'blog/tag_detail.html'
-    context_object_name = 'posts'
-    paginate_by = 10
     
+
     def get_queryset(self):
         tag_slug = self.kwargs['slug']
         return Post.objects.filter(
+
             tags__slug=tag_slug,
             visibility='public',
             status='published'
@@ -210,9 +225,6 @@ class TagDetailView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.all()
-        context['ads'] = AdSpace.objects.filter(is_active=True)
-        context['newsletter_form'] = NewsletterForm()
         return context
 
 class SeriesDetailView(ListView):
@@ -286,9 +298,7 @@ class NewsletterSignupView(CreateView):
         # Redirect back to the page they were on
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', '/'))
     
-    def get_success_url(self):
-        return reverse_lazy('blog:home')
-
+    
 class CommentCreateView(CreateView):
     model = Comment
     form_class = CommentForm
@@ -300,7 +310,7 @@ class CommentCreateView(CreateView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('blog:post_detail', kwargs={'slug': self.kwargs['slug']})
+        return reverse('blog:post_detail', kwargs={'slug': self.kwargs['slug']})
 
 class UserProfileView(DetailView):
     model = User
@@ -329,6 +339,20 @@ class UserProfileView(DetailView):
         
         context['categories'] = Category.objects.all()
         return context
+
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'blog/user_profile_form.html'
+    
+    def get_object(self):
+        return self.request.user.profile
+    
+    def form_valid(self, form):
+        super().form_valid(form)
+        messages.success(self.request, 'Profile updated successfully!')
+        return redirect(reverse('blog:user_profile', kwargs={'username': self.request.user.username}))
 
 class BookmarkListView(LoginRequiredMixin, ListView):
     model = Bookmark

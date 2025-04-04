@@ -1,6 +1,7 @@
 # blog/forms.py
 from django import forms
 from django.utils.text import slugify
+from .models import UserProfile
 from .models import Post, Newsletter, Series
 
 
@@ -80,3 +81,13 @@ class NewsletterForm(forms.ModelForm):
         if Newsletter.objects.filter(email=email).exists():
             raise forms.ValidationError("This email is already subscribed")
         return email
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'location', 'website', 'twitter', 'github', 'linkedin', 'avatar']
+        widgets = {
+            'avatar': forms.ClearableFileInput(),
+        }
+
+

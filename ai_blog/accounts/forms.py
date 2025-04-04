@@ -50,10 +50,10 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['bio', 'location', 'birth_date', 'profile_picture']
+        fields = ['bio', 'location', 'profile_picture']
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'profile_picture': forms.FileInput(attrs={'class': 'form-control'})
         }
+
