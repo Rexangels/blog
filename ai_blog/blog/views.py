@@ -1,22 +1,24 @@
 # blog/views.py
 import logging
-from django.shortcuts import redirect, reverse, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from .models import Post, Category, Tag, Newsletter, AdSpace, Comment, PageVisit, CommentLike
-from .forms import PostForm, NewsletterForm, CommentForm
-from django.views.generic import ( 
-    ListView, DetailView, CreateView, UpdateView, DeleteView,
+from .models import Post, Category, Tag, Newsletter, Comment, PageVisit, CommentLike, Notification, UserProfile, UserNotificationSettings
+from .forms import UserNotificationSettingsForm
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView
 )
+from django.contrib.syndication.views import Feed
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Count, Max
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, ListView
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Series
-from .models import UserProfile, Bookmark, PostLike
+from .models import SeriesFollower, UserNotificationSettings
+from .models import Bookmark, PostLike
 from .forms import UserProfileForm
 from django.http import JsonResponse
 
@@ -64,6 +66,28 @@ class PostListView(ListView):
         
         return context
 
+class LatestPostsFeed(Feed):
+    title = "My blog"
+    link = "/blog/"
+    description = "Latest posts from my blog"
+
+    def items(self):
+        return Post.objects.filter(status='published', visibility='public').order_by('-pub_date')[:5]
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.content[:200] + '...'        
+                
+                
+    def item_link(self, item):
+        return reverse("blog:post_detail", args=[item.slug])
+
+    def item_pubdate(self, item):
+        return item.pub_date
+        return context
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
@@ -91,7 +115,7 @@ class PostDetailView(DetailView):
         post = self.get_object()
         post.view_count += 1
         post.save()
-        
+
         # Track page visit if needed
         if request.user.is_authenticated:
             user_agent = request.META.get('HTTP_USER_AGENT', '')
@@ -102,9 +126,9 @@ class PostDetailView(DetailView):
                 user_agent=user_agent,
                 referrer=referrer
             )
-        
+
         return super().get(request, *args, **kwargs)
-    
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -126,7 +150,7 @@ class PostDetailView(DetailView):
 
         return context
 
-class PostCreateView(LoginRequiredMixin, CreateView):
+class PostCreateView(LoginRequiredMixin,CreateView):
     form_class = PostForm
     template_name = 'blog/post_form.html'
     
@@ -149,6 +173,42 @@ class PostCreateView(LoginRequiredMixin, CreateView):
             post.slug = "-".join(post.title.lower().split())
             post.save()
         form.save_m2m()  # Save many-to-many fields
+
+        # Create notifications if the post is published.
+        if post.status == 'published':
+            if post.series:
+                # If the post belongs to a series, notify only the followers of that series.
+                followers = SeriesFollower.objects.filter(series=post.series)
+                for follower in followers:
+                    # Skip creating notification for the author
+                    if follower.user == post.author:
+                         continue
+                    # Check if the user wants series notifications
+                    user_settings = follower.user.notification_settings
+                    if user_settings.receive_series_notifications:
+                        Notification.objects.create(
+                            user=follower.user,
+                            post=post,
+                            message=f'New post "{post.title}" in the series "{post.series.title}".'
+                    )
+            else:
+                # If the post does not belong to a series, notify all users (existing logic).
+                all_users = User.objects.all()
+                for user in all_users:
+                    # Skip creating notification for the author
+                    if user == post.author:
+                        continue
+
+                    user_settings = user.notification_settings
+                    # Check if the user wants post notifications
+                    if user_settings.receive_post_notifications:
+                        Notification.objects.create(
+                            user=user,
+                            post=post,
+                            message=f'New post: {post.title}'
+                        )
+
+
         
         messages.success(self.request, 'Post created successfully!')
         
@@ -266,6 +326,13 @@ class SeriesDetailView(ListView):
         context = super().get_context_data(**kwargs)
         series_slug = self.kwargs["slug"]
         context["series"] = Series.objects.get(slug=series_slug)
+        
+        # Check if the user is following the series
+        if self.request.user.is_authenticated:
+            context["is_following"] = SeriesFollower.objects.filter(user=self.request.user, series=context["series"]).exists()
+        else:
+            context["is_following"] = False
+
         return context
 
 class AdvancedSearchView(ListView):
@@ -476,3 +543,34 @@ def update_bookmark_notes(request, pk):
     
     # Redirect back to bookmarks page
     return redirect('blog:bookmarks')
+
+@login_required
+def toggle_follow_series(request, slug):
+    series = get_object_or_404(Series, slug=slug)
+    follower = SeriesFollower.objects.filter(user=request.user, series=series).first()
+    if follower:
+        follower.delete()
+        messages.success(request, f'You have unfollowed {series.title}.')
+    else:
+        SeriesFollower.objects.create(user=request.user, series=series)
+        messages.success(request, f'You are now following {series.title}.')
+    return redirect('blog:series_detail', slug=slug)
+
+
+
+
+
+
+@login_required
+def update_notification_preferences(request):
+    settings, created = UserNotificationSettings.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        form = UserNotificationSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notification preferences updated successfully.')
+            return redirect('blog:user_profile', username=request.user.username)
+    else:
+        form = UserNotificationSettingsForm(instance=settings)
+    return render(request, 'blog/notification_preferences_form.html', {'form': form})
+import logging

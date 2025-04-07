@@ -11,6 +11,18 @@
       {% if series.description %}
       <p class="lead">{{ series.description }}</p>
       {% endif %}
+      {% if user.is_authenticated %}
+      <form method="post" action="{% url 'blog:toggle_follow_series' series.slug %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+          {% if is_following %}
+          Unfollow
+          {% else %}
+          Follow
+          {% endif %}
+        </button>
+      </form>
+      {% endif %}
 
       <h2 class="mt-5 mb-3">Posts in this series:</h2>
       <ul class="list-group">

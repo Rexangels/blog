@@ -1,7 +1,7 @@
 # blog/forms.py
 from django import forms
 from django.utils.text import slugify
-from .models import UserProfile
+from .models import UserProfile, UserNotificationSettings
 from .models import Post, Newsletter, Series
 
 
@@ -89,5 +89,12 @@ class UserProfileForm(forms.ModelForm):
         widgets = {
             'avatar': forms.ClearableFileInput(),
         }
+
+class UserNotificationSettingsForm(forms.ModelForm):
+    class Meta:
+        model = UserNotificationSettings
+        fields = ['receive_post_notifications', 'receive_comment_notifications', 'receive_series_notifications']
+
+
 
 

@@ -1,0 +1,616 @@
+/* static/blog/css/post_detail.css */
+
+/* --- Variables (Optional but Recommended) --- */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #495057;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    --hero-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --border-radius-sm: 0.25rem; /* Bootstrap default */
+    --border-radius-md: 0.5rem;  /* 8px */
+    --border-radius-lg: 0.75rem; /* 12px */
+    --border-radius-xl: 1.25rem;/* 20px */
+    --border-radius-pill: 50rem; /* Bootstrap default */
+  }
+  
+  /* --- General Article Styling --- */
+  .post-article {
+    /* Add specific styling for the article container if needed */
+  }
+  
+  /* --- Hero Image --- */
+  .hero-image-container {
+    height: 450px; /* Slightly adjusted */
+    overflow: hidden;
+    position: relative;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 2rem;
+    box-shadow: var(--hero-shadow);
+    background-color: var(--medium-gray); /* Placeholder background */
+  }
+  
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .hero-image-container:hover .hero-image {
+    transform: scale(1.05); /* Subtle zoom on hover */
+  }
+  
+  .post-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 2.5rem; /* Increased padding */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+    color: white;
+  }
+  
+  .post-title-overlay .post-title {
+     margin-bottom: 0; /* Remove default h1 margin */
+     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  
+  .post-title-no-image {
+      /* Style for title when there's no hero image */
+      color: #333; /* Darker color */
+      font-weight: 700;
+  }
+  
+  /* --- Post Metadata --- */
+  .post-meta-section {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem; /* Row and column gap */
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+  }
+  
+  .post-meta-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .post-meta-item i {
+    /* font-size: 1.1rem; */ /* Icons usually inherit size well */
+    margin-right: 0.4rem;
+    color: var(--secondary-color); /* Consistent icon color */
+  }
+  .post-meta-item .like-button i,
+  .post-meta-item .bookmark-link i {
+      color: inherit; /* Let the link color control */
+      transition: color 0.2s ease;
+  }
+  .post-meta-item .like-button {
+      color: var(--secondary-color);
+  }
+  .post-meta-item .like-button:hover i,
+  .post-meta-item .like-button i.bi-heart-fill {
+      color: #dc3545; /* Bootstrap danger red */
+  }
+  .post-meta-item .bookmark-link {
+      color: var(--secondary-color);
+  }
+  .post-meta-item .bookmark-link:hover i,
+  .post-meta-item .bookmark-link i.bi-bookmark-fill {
+      color: var(--primary-color);
+  }
+  
+  
+  .author-meta-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      object-fit: cover;
+  }
+  
+  .post-meta-item a {
+      text-decoration: none;
+      color: var(--secondary-color);
+      transition: color 0.2s ease;
+  }
+  
+  .post-meta-item a:hover {
+      color: var(--primary-color);
+  }
+  
+  /* --- Social Sharing --- */
+  .social-share {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+  .share-label {
+      font-size: 0.9rem;
+      color: var(--secondary-color);
+      font-weight: 500;
+  }
+  .social-share-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; /* Slightly smaller */
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .social-share-link:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  /* Brand colors on hover */
+  .social-share-link.twitter:hover { background-color: #1DA1F2; }
+  .social-share-link.facebook:hover { background-color: #1877F2; }
+  .social-share-link.linkedin:hover { background-color: #0A66C2; }
+  .social-share-link.email:hover { background-color: #7f8c8d; } /* Generic email color */
+  
+  
+  /* --- Taxonomy (Categories/Tags) --- */
+  .taxonomy-section {
+      font-size: 0.9rem;
+  }
+  .taxonomy-label {
+      font-weight: 500;
+      color: var(--secondary-color);
+      margin-right: 0.5rem;
+  }
+  .category-badge, .tag-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--border-radius-pill);
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 0.85rem; /* Slightly smaller badges */
+    line-height: 1.4;
+  }
+  .category-badge i, .tag-badge i {
+      font-size: 0.8em; /* Make icon slightly smaller than text */
+  }
+  
+  .category-badge {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  .category-badge:hover {
+    background-color: darken(var(--primary-color), 10%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tag-badge {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+  .tag-badge:hover {
+    background-color: darken(var(--secondary-color), 10%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* --- Series Info --- */
+  .series-section {
+      font-size: 0.95rem;
+      padding: 0.8rem 1.2rem;
+  }
+  .series-section a {
+      font-weight: 600;
+  }
+  
+  /* --- Post Content --- */
+  .post-content {
+    font-size: 1.1rem; /* Base font size for reading */
+    line-height: 1.8; /* Generous line height */
+    color: #333; /* Dark gray for readability */
+  }
+  
+  .post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius-md);
+    margin: 2.5rem 0; /* More vertical space */
+    box-shadow: var(--card-shadow);
+    display: block; /* Prevents inline spacing issues */
+    margin-left: auto; /* Center images if desired */
+    margin-right: auto;
+  }
+  
+  /* Improve heading spacing and style */
+  .post-content h2,
+  .post-content h3,
+  .post-content h4 {
+    margin-top: 2.8rem;
+    margin-bottom: 1.2rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .post-content h2 { font-size: 1.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;}
+  .post-content h3 { font-size: 1.5rem; }
+  .post-content h4 { font-size: 1.25rem; font-weight: 600;}
+  
+  .post-content p {
+    margin-bottom: 1.5rem;
+  }
+  
+  .post-content a {
+      color: var(--primary-color);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: color 0.2s ease;
+  }
+  .post-content a:hover {
+      color: darken(var(--primary-color), 15%);
+  }
+  
+  /* Basic styling for common content elements */
+  .post-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    margin: 2rem 0;
+    padding: 1rem 1.5rem;
+    background-color: var(--light-gray);
+    font-style: italic;
+    color: var(--secondary-color);
+  }
+  .post-content blockquote p {
+      margin-bottom: 0;
+  }
+  
+  .post-content ul, .post-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+  
+  .post-content li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .post-content code:not(pre code) {
+    background-color: var(--medium-gray);
+    padding: 0.2em 0.4em;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+  }
+  
+  .post-content pre {
+    background-color: #2d2d2d; /* Dark background for code blocks */
+    color: #f8f8f2; /* Light text */
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    overflow-x: auto; /* Handle long lines */
+    margin: 2rem 0;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  }
+  .post-content pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  
+  /* --- Author Card --- */
+  .author-card {
+    display: flex;
+    align-items: flex-start; /* Align items to top */
+    padding: 2rem;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius-lg);
+    margin: 3rem 0;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+  }
+  
+  .author-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1.5rem;
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+    background-color: var(--medium-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .author-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+  }
+  
+  .author-avatar .placeholder-icon {
+    font-size: 2.5rem; /* Larger placeholder */
+    color: var(--secondary-color);
+  }
+  
+  .author-info {
+    flex: 1;
+  }
+  .author-name {
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+  }
+  .author-bio {
+      font-size: 0.95rem;
+      margin-bottom: 1rem !important; /* Override default p margin */
+  }
+  
+  .author-social-links {
+      display: flex;
+      gap: 0.75rem;
+  }
+  
+  .author-social-links .social-link {
+      color: var(--secondary-color);
+      font-size: 1.3rem;
+      transition: color 0.2s ease;
+  }
+  .author-social-links .social-link:hover {
+      color: var(--primary-color);
+  }
+  
+  
+  /* --- Comment Section --- */
+  .comment-container {
+    margin-top: 3rem;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden; /* Clip child borders */
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+  }
+  
+  .comment-header {
+    padding: 1rem 1.5rem;
+    background-color: var(--light-gray);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .comment-header h3 {
+      margin-bottom: 0;
+      font-size: 1.4rem;
+  }
+  
+  .comment-list {
+      /* Styles for the list container if needed */
+  }
+  
+  .comment-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+  }
+  
+  .comment-item:last-child {
+    border-bottom: none;
+  }
+  
+  .comment-item:hover {
+    background-color: #fdfdfd; /* Very subtle hover */
+  }
+  
+  .comment-author {
+    color: #333;
+  }
+  .comment-actions {
+      font-size: 0.85rem;
+  }
+  .comment-like-button {
+      color: var(--secondary-color);
+      transition: color 0.2s ease;
+  }
+  .comment-like-button:hover {
+      color: #dc3545;
+  }
+  .comment-like-button i.bi-heart-fill {
+      color: #dc3545;
+  }
+  
+  .comment-body {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #555;
+  }
+  
+  .comment-form-container {
+    padding: 2rem 1.5rem;
+    background-color: var(--light-gray);
+    border-top: 1px solid var(--border-color);
+  }
+  .comment-form-container h4 {
+      font-size: 1.3rem;
+      font-weight: 600;
+  }
+  .comment-form-container .form-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+  }
+  .comment-form-container .form-control {
+      font-size: 1rem;
+  }
+  
+  
+  /* --- Sidebar Widgets --- */
+  .sidebar .widget {
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      border-radius: var(--border-radius-md); /* Consistent radius */
+  }
+  .sidebar .widget .widget-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      background-color: var(--light-gray); /* Subtle header background */
+      border-bottom: 1px solid var(--border-color);
+  }
+  
+  /* Specific Widget Styling */
+  .widget-search .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25); /* Bootstrap focus style */
+  }
+  
+  .widget-related-posts .list-group-item {
+      border-left: 0;
+      border-right: 0;
+      padding: 0.8rem 1.2rem;
+  }
+  .widget-related-posts .list-group-item:first-child { border-top-left-radius: 0; border-top-right-radius: 0;}
+  .widget-related-posts .list-group-item:last-child { border-bottom-right-radius: 0; border-bottom-left-radius: 0;}
+  
+  .widget-related-posts .related-post-item:hover {
+      background-color: var(--light-gray);
+  }
+  .widget-related-posts .related-post-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--bs-body-color); /* Use bootstrap text color */
+      margin-bottom: 0.25rem !important;
+  }
+  .widget-related-posts .related-post-item small {
+      font-size: 0.8rem;
+  }
+  
+  .widget-newsletter {
+      border: none; /* Remove border for colored card */
+      box-shadow: 0 8px 20px rgba(var(--bs-primary-rgb), 0.25);
+  }
+  .widget-newsletter .card-title {
+      font-weight: 600;
+  }
+  .widget-newsletter .form-control::placeholder {
+      color: #ddd;
+      opacity: 0.8;
+  }
+  .widget-newsletter .form-control:focus {
+      box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.3);
+  }
+  
+  .widget-advertisement .advertisement-container {
+      /* Add styling if needed, e.g., center content */
+      text-align: center;
+      padding: 1rem; /* Add padding if ad code doesn't include it */
+      background-color: var(--light-gray); /* Optional background */
+      border-radius: var(--border-radius-md);
+  }
+  .widget-advertisement .advertisement-container img {
+      max-width: 100%;
+      height: auto;
+  }
+  
+  /* --- Responsive Adjustments --- */
+  @media (max-width: 991.98px) { /* Below Large (lg) breakpoint */
+      .sidebar {
+          margin-top: 3rem; /* Add space above sidebar when it stacks */
+      }
+      .sticky-top {
+          position: static !important; /* Disable sticky sidebar on smaller screens */
+      }
+  }
+  
+  @media (max-width: 767.98px) { /* Below Medium (md) breakpoint */
+    .hero-image-container {
+      height: 300px;
+    }
+    .post-title-overlay {
+        padding: 1.5rem;
+    }
+    .post-title-overlay .post-title,
+    .post-title-no-image {
+      font-size: 1.8rem;
+    }
+    .post-content {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    .post-content h2 { font-size: 1.6rem; }
+    .post-content h3 { font-size: 1.4rem; }
+  
+    .author-card {
+        flex-direction: column; /* Stack avatar and info */
+        align-items: center;
+        text-align: center;
+    }
+    .author-avatar {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    .author-social-links {
+        justify-content: center;
+    }
+    .post-meta {
+        font-size: 0.85rem;
+        gap: 0.4rem 1rem;
+    }
+    .comment-form-container {
+        padding: 1.5rem 1rem;
+    }
+  }
+  
+  @media (max-width: 575.98px) { /* Below Small (sm) breakpoint */
+      .hero-image-container {
+          height: 250px;
+          margin-left: -0.75rem; /* Extend slightly into container padding */
+          margin-right: -0.75rem;
+          border-radius: 0; /* Full width hero on small screens */
+      }
+      .post-title-overlay .post-title,
+      .post-title-no-image {
+          font-size: 1.6rem;
+      }
+      .post-meta {
+        /* Could potentially stack items vertically if needed */
+      }
+      .social-share {
+          justify-content: flex-start; /* Align left */
+          margin-top: 1rem; /* Add space if stacking */
+      }
+      .social-share-link {
+          width: 32px;
+          height: 32px;
+          font-size: 1rem;
+      }
+      .comment-item, .comment-header, .comment-form-container {
+          padding-left: 1rem;
+          padding-right: 1rem;
+      }
+  
+  }
+  
+  /* Accessibility: Ensure focus states are visible */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.25);
+  }
+  /* Remove default outline when focus-visible is supported */
+  a:focus:not(:focus-visible), button:focus:not(:focus-visible) {
+      outline: none;
+  }

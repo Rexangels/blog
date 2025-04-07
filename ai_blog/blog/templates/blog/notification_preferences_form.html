@@ -1,0 +1,14 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Notification Preferences{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Notification Preferences</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Preferences</button>
+    </form>
+</div>
+{% endblock %}

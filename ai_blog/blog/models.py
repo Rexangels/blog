@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
+
 from ckeditor_uploader.fields import RichTextUploadingField
 
 from django.db import models
@@ -16,6 +18,20 @@ import readtime
 # Add to blog/models.py
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+class UserNotificationSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='notification_settings')
+    receive_post_notifications = models.BooleanField(default=True)
+    receive_comment_notifications = models.BooleanField(default=True)
+    receive_series_notifications = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.user.username} Notification Settings'
+
+@receiver(post_save, sender=User)
+def create_user_notification_settings(sender, instance, created, **kwargs):
+    if created:
+        UserNotificationSettings.objects.create(user=instance)
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name='Category Name')
@@ -48,6 +64,17 @@ class Series(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+
+class SeriesFollower(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    series = models.ForeignKey(Series, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'series')
+
+    def __str__(self):
+        return f'{self.user.username} follows {self.series.title}'
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -183,7 +210,7 @@ class Post(models.Model):
         return reverse('blog:post_like', kwargs={'slug': self.slug})
     
     def get_bookmark_url(self):
-        return reverse('blog:post_bookmark', kwargs={'slug': self.slug})
+        return reverse('blog:toggle_bookmark', kwargs={'slug': self.slug})
     
     def get_share_url(self):
         return reverse('blog:post_share', kwargs={'slug': self.slug})
@@ -224,6 +251,32 @@ class SponsoredContent(models.Model):
     
     def __str__(self):
         return f"{self.title} - Sponsored by {self.sponsor}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    series = models.ForeignKey(Series, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def clean(self):
+        # Ensure that either post or series is set, but not both.
+        if self.post and self.series:
+            raise ValidationError("A notification can be related to either a post or a series, but not both.")
+        if not self.post and not self.series:
+            raise ValidationError("A notification must be related to either a post or a series.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.message
+
 
 # Add to blog/models.py
 class Comment(models.Model):
