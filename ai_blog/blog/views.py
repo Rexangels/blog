@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from .models import Post, Category, Tag, Newsletter, Comment, PageVisit, CommentLike, Notification, UserProfile, UserNotificationSettings
-from .forms import UserNotificationSettingsForm
+from .forms import PostForm, CommentForm, UserNotificationSettingsForm, NewsletterForm
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
@@ -574,3 +574,18 @@ def update_notification_preferences(request):
         form = UserNotificationSettingsForm(instance=settings)
     return render(request, 'blog/notification_preferences_form.html', {'form': form})
 import logging
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'blog/category_list.html'
+    context_object_name = 'categories'
+    
+    def get_queryset(self):
+        return Category.objects.all().annotate(
+            post_count=Count('post', filter=Q(post__visibility='public', post__status='published'))
+        ).order_by('name')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context

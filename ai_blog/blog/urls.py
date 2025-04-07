@@ -41,12 +41,13 @@ urlpatterns = [
     path('comment/<int:pk>/like/', views.toggle_comment_like, name='toggle_comment_like'), # Moved comment like here
 
     # User profile
-    path('profile/<str:username>/', views.UserProfileView.as_view(), name='user_profile'),
+    path('profile/notifications/', views.update_notification_preferences, name='update_notification_preferences'),
     path('profile/edit/', UserProfileUpdateView.as_view(), name='profile_edit'),
+    path('profile/<str:username>/', views.UserProfileView.as_view(), name='user_profile'),
 
 
     # Bookmarks
-    path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),
+    path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),    
     path('post/<slug:slug>/bookmark/', views.toggle_bookmark, name='toggle_bookmark'),
 
     path('bookmarks/<int:pk>/update_notes/', views.update_bookmark_notes, name='update_bookmark_notes'),
@@ -56,5 +57,4 @@ urlpatterns = [
 
     # RSS Feed (Assuming you have this view from the previous example)
     path('rss/', views.LatestPostsFeed(), name='rss_feed'), # Added RSS feed URL
-    path('profile/notifications/', views.update_notification_preferences, name='update_notification_preferences'),
 ]
