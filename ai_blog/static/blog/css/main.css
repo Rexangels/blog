@@ -1,0 +1,83 @@
+:root {
+  /* Light Theme Variables (Softer) */
+  --primary-color: #3b82f6; /* Blue-500 */
+  --primary-hover: #2563eb; /* Blue-600 */
+  --secondary-color: #6b7280; /* Gray-500 */
+  --success-color: #10b981; /* Emerald-500 */
+  --warning-color: #f59e0b; /* Amber-500 */
+  --error-color: #ef4444; /* Red-500 */
+
+  --bg-color: #f8fafc; /* Slate-50 (Off-white) */
+  --text-color: #1f2937; /* Slate-800 (Darker Gray) */
+  --link-color: var(--primary-color);
+  --border-color: #e2e8f0; /* Slate-200 */
+  --card-bg: #ffffff; /* White */
+  --code-bg: #f1f5f9; /* Slate-100 (Light code background) */
+  --light-bg: #f1f5f9; /* Slate-100 (Used for card footers etc.) */
+
+  /* Gray shades */
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --light-text: #ffffff; /* White text for dark backgrounds */
+
+  /* Other UI Elements */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --card-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.05);
+  --hero-shadow: 0 10px 15px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.07);
+}
+
+body.dark-mode {
+  /* Dark Theme Variables */
+  --primary-color: #60a5fa; /* Blue-400 (Lighter Blue) */
+  --primary-hover: #93c5fd; /* Blue-300 */
+  --secondary-color: #9ca3af; /* Gray-400 */
+  --success-color: #34d399; /* Emerald-400 */
+  --warning-color: #fbbf24; /* Amber-400 */
+  --error-color: #f87171; /* Red-400 */
+
+  --bg-color: #0f172a; /* Slate-900 (Very Dark Blue/Gray) */
+  --text-color: #cbd5e1; /* Slate-300 (Light Gray) */
+  --link-color: var(--primary-color);
+  --border-color: #334155; /* Slate-700 */
+  --card-bg: #1e293b; /* Slate-800 */
+  --code-bg: #1e293b; /* Slate-800 (Same as card for dark) */
+  --light-bg: #1e293b; /* Slate-800 (Used for card footers etc.) */
+
+  --light-text: #f8fafc; /* Slightly off-white for dark mode if needed, or keep white */
+
+  /* Gray shades remain the same definition, but usage context changes */
+
+  /* Other UI Elements */
+  --card-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.15);
+  --hero-shadow: 0 10px 15px rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.2);
+}
+
+/* Basic body styling using variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Inter', sans-serif; /* Match base.html */
+  line-height: 1.7; /* Match base.html */
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--link-color);
+  /* Transition and hover are handled in base.html styles */
+}
+
+/* Remove generic .card style - handled in base.html */
+
+/* Add more general styles using variables if needed */

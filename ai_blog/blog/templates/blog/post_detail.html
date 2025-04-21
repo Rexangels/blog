@@ -43,6 +43,12 @@
 
 {% block content %}
 <div class="container mt-4"> {# Added top margin #}
+  {# Add breadcrumbs navigation #}
+  {% include 'blog/components/breadcrumbs.html' %}
+  
+  {# Add sticky social sharing #}
+  {% include 'blog/components/sticky-social-share.html' %}
+  
   <div class="row">
     {# Main Post Content Area #}
     <div class="col-lg-8">
@@ -63,10 +69,10 @@
         <section class="post-meta-section mb-4">
           <div class="post-meta">
             <div class="post-meta-item author-meta">
-              {% if post.author.accounts_profile.profile_picture %}
-                <img src="{{ post.author.accounts_profile.profile_picture.url }}" alt="{{ post.author.get_full_name|default:post.author.username }}" class="author-meta-avatar">
+              {% if post.author.blog_profile and post.author.blog_profile.avatar %}
+                <img src="{{ post.author.blog_profile.avatar.url }}" alt="{{ post.author.get_full_name|default:post.author.username }} profile picture" class="author-meta-avatar rounded-circle" style="width:32px;height:32px;object-fit:cover;">
               {% else %}
-                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                <i class="bi bi-person-circle me-1" aria-hidden="true" style="font-size:2rem;"></i>
               {% endif %}
               <span>{{ post.author.get_full_name|default:post.author.username }}</span>
             </div>
@@ -163,29 +169,29 @@
         {# Author Bio Box #}
         <section class="author-card mb-5">
           <div class="author-avatar">
-            {% if post.author.accounts_profile.profile_picture %}
-              <img src="{{ post.author.accounts_profile.profile_picture.url }}" alt="{{ post.author.get_full_name|default:post.author.username }}" class="author-avatar-img">
+            {% if post.author.blog_profile and post.author.blog_profile.avatar %}
+              <img src="{{ post.author.blog_profile.avatar.url }}" alt="{{ post.author.get_full_name|default:post.author.username }} profile picture" class="author-avatar-img rounded-circle" style="width:80px;height:80px;object-fit:cover;">
             {% else %}
-              <i class="bi bi-person-fill placeholder-icon" aria-hidden="true"></i> {# Larger icon for placeholder #}
+              <i class="bi bi-person-fill placeholder-icon" aria-hidden="true" style="font-size:4rem;"></i>
             {% endif %}
           </div>
           <div class="author-info">
             <h4 class="author-name">About {{ post.author.get_full_name|default:post.author.username }}</h4>
-            <p class="author-bio mb-2 text-muted">{{ post.author.accounts_profile.bio|default:"The author has not provided a bio yet." }}</p>
+            <p class="author-bio mb-2 text-muted">{{ post.author.blog_profile.bio|default:"The author has not provided a bio yet." }}</p>
             {# Add dynamic links if available in profile #}
             <div class="author-social-links">
-              {% if post.author.accounts_profile.twitter_url %}
-              <a href="{{ post.author.accounts_profile.twitter_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s Twitter profile" class="social-link">
+              {% if post.author.blog_profile.twitter %}
+              <a href="https://twitter.com/{{ post.author.blog_profile.twitter }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s Twitter profile" class="social-link">
                 <i class="bi bi-twitter"></i>
               </a>
               {% endif %}
-              {% if post.author.accounts_profile.linkedin_url %}
-              <a href="{{ post.author.accounts_profile.linkedin_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s LinkedIn profile" class="social-link">
+              {% if post.author.blog_profile.linkedin %}
+              <a href="https://linkedin.com/in/{{ post.author.blog_profile.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s LinkedIn profile" class="social-link">
                 <i class="bi bi-linkedin"></i>
               </a>
               {% endif %}
-               {% if post.author.accounts_profile.website_url %}
-              <a href="{{ post.author.accounts_profile.website_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s Website" class="social-link">
+               {% if post.author.blog_profile.website %}
+              <a href="{{ post.author.blog_profile.website }}" target="_blank" rel="noopener noreferrer" aria-label="{{ post.author.get_full_name|default:post.author.username }}'s Website" class="social-link">
                 <i class="bi bi-link-45deg"></i>
               </a>
               {% endif %}
@@ -263,6 +269,9 @@
     {# Sidebar #}
     <aside class="col-lg-4 sidebar">
         <div class="sticky-top" style="top: 20px;"> {# Make sidebar sticky #}
+            {# Table of Contents Widget #}
+            {% include 'blog/components/table-of-contents.html' %}
+            
             {# Search Widget #}
             <div class="card widget widget-search mb-4">
                 <h5 class="card-header widget-title">Search</h5>
@@ -281,18 +290,61 @@
             {# Related Posts Widget #}
             {% if related_posts %}
                 <div class="card widget widget-related-posts mb-4">
-                <h5 class="card-header widget-title">Related Posts</h5>
-                <div class="list-group list-group-flush">
-                    {% for related in related_posts %}
-                    <a href="{% url 'blog:post_detail' slug=related.slug %}" class="list-group-item list-group-item-action related-post-item">
-                        <h6 class="mb-1 related-post-title">{{ related.title }}</h6>
-                        <small class="text-muted">
-                        <i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
-                        <time datetime="{{ related.created_at|date:"Y-m-d" }}">{{ related.created_at|date:"M d, Y" }}</time>
-                        </small>
-                    </a>
-                    {% endfor %}
-                </div>
+                    <h5 class="card-header widget-title">Related Posts</h5>
+                    <div class="list-group list-group-flush">
+                        {% for related in related_posts %}
+                            <div class="list-group-item related-post-item p-3">
+                                <div class="row g-0">
+                                    {% if related.featured_image %}
+                                    <div class="col-4">
+                                        <img src="{{ related.featured_image.url }}" alt="{{ related.title }}" class="img-fluid rounded" width="100">
+                                    </div>
+                                    <div class="col-8 d-flex align-items-center">
+                                    {% else %}
+                                    <div class="col-12 d-flex align-items-center">
+                                    {% endif %}
+                                        <div class="me-2">
+                                            {% if related.author.blog_profile and related.author.blog_profile.avatar %}
+                                                <img src="{{ related.author.blog_profile.avatar.url }}" alt="{{ related.author.get_full_name|default:related.author.username }} profile picture" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
+                                            {% else %}
+                                                <i class="bi bi-person-circle text-secondary" aria-hidden="true" style="font-size:1.5rem;"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ps-2 flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'blog:post_detail' slug=related.slug %}" class="stretched-link text-decoration-none">
+                                                    {{ related.title }}
+                                                </a>
+                                            </h6>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar-event me-1"></i>
+                                                    {{ related.created_at|date:"M d, Y" }}
+                                                </small>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-eye me-1"></i>
+                                                    {{ related.view_count }}
+                                                </small>
+                                            </div>
+                                            {% if related.categories.all %}
+                                                <div class="related-post-categories">
+                                                    {% with category=related.categories.first %}
+                                                        <small><span class="badge bg-secondary">{{ category.name }}</span></small>
+                                                    {% endwith %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer bg-transparent text-center">
+                        <a href="{% url 'blog:home' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-grid-3x3-gap-fill me-1"></i>
+                            Browse All Posts
+                        </a>
+                    </div>
                 </div>
             {% endif %}
 

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,924 +22,10 @@
     </script><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'blog/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/post_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/base_custom.css' %}">
 
-    <style>
-        /*--------------------------------------------------------------
-        # CSS Variables & Base Styles
-        --------------------------------------------------------------*/
-        :root {
-            --primary-color: #3b82f6; /* Blue-500 */
-            --primary-hover: #2563eb; /* Blue-600 */
-            --secondary-color: #6b7280; /* Gray-500 */
-            --light-bg: #f9fafb; /* Gray-50 */
-            --dark-text: #111827; /* Gray-900 */
-            --light-text: #f9fafb; /* Gray-50 */
-            --card-bg: #ffffff;
-            --code-bg: #1e293b; /* Slate-800 */
-            --border-color: #e5e7eb; /* Gray-200 */
-            --success-color: #10b981; /* Emerald-500 */
-            --warning-color: #f59e0b; /* Amber-500 */
-            --error-color: #ef4444; /* Red-500 */
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --dark-mode-bg: #111827; /* Gray-900 */
-            --dark-mode-card: #1f2937; /* Gray-800 */
-            --dark-mode-text: #f3f4f6; /* Gray-100 (slightly off-white) */
-            --dark-border-color: #374151; /* Gray-700 */
-        }
-
-        html {
-            scroll-behavior: smooth; /* Smooth scrolling for anchor links */
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.7; /* Slightly increased line height */
-            color: var(--dark-text);
-            background-color: var(--light-bg);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            font-size: 16px; /* Base font size */
-        }
-
-        main {
-            flex-grow: 1; /* Ensure main content takes up available space */
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600; /* Slightly bolder headings */
-            color: var(--dark-text);
-        }
-
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        a:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
-        }
-
-        pre, code, kbd, samp { /* Consistent mono font */
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9em; /* Relative font size */
-        }
-
-        /*--------------------------------------------------------------
-        # Navbar
-        --------------------------------------------------------------*/
-        .navbar {
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 0.75rem 0;
-            background-color: rgba(255, 255, 255, 0.85); /* Slightly less transparent */
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.3s ease;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--dark-text); /* Ensure brand text is dark */
-        }
-        .navbar-brand:hover {
-            color: var(--dark-text); /* Prevent color change on hover */
-            text-decoration: none;
-        }
-
-        .navbar-brand i {
-            font-size: 1.75rem;
-            color: var(--primary-color);
-        }
-
-        .nav-link {
-            font-weight: 500;
-            padding: 0.6rem 1rem; /* Adjusted padding */
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
-            color: var(--gray-700); /* Slightly softer nav link color */
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-        .nav-link i {
-             font-size: 1rem;
-             line-height: 1; /* Ensure icon aligns well */
-        }
-
-        .nav-link:hover,
-        .nav-link:focus {
-            background-color: var(--gray-100);
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        .nav-link.active {
-            background-color: rgba(59, 130, 246, 0.1); /* Subtle active background */
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .dropdown-menu {
-            border-radius: 0.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-            padding: 0.5rem 0; /* Add padding */
-        }
-        .dropdown-item {
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-        .dropdown-item i {
-            width: 1.25rem; /* Align icons */
-            text-align: center;
-            color: var(--secondary-color); /* Subtle icon color */
-            transition: color 0.2s ease;
-        }
-        .dropdown-item:hover, .dropdown-item:focus {
-            background-color: var(--gray-100);
-            color: var(--primary-color);
-        }
-        .dropdown-item:hover i, .dropdown-item:focus i {
-            color: var(--primary-color);
-        }
-        .dropdown-divider {
-             margin: 0.5rem 0;
-             border-top-color: var(--border-color);
-        }
-
-        /*--------------------------------------------------------------
-        # Cards & Posts
-        --------------------------------------------------------------*/
-        .card {
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.05); /* Softer shadow */
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            overflow: hidden;
-            background-color: var(--card-bg);
-            margin-bottom: 1.75rem; /* Increased spacing */
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.07);
-        }
-
-        .card-header {
-            background-color: transparent;
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 1.5rem; /* Adjusted padding */
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-        .card-footer {
-            background-color: var(--light-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-        }
-
-        .featured-post { /* Specific styling for featured post card */
-            border-radius: 1rem;
-        }
-        .featured-post .card-img-top {
-            height: 400px;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .featured-post:hover .card-img-top {
-            transform: scale(1.03);
-        }
-
-        .post-meta {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            margin-bottom: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem 1rem; /* Row and column gap */
-            align-items: center;
-        }
-        .post-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .post-meta i {
-            font-size: 1rem;
-        }
-        .post-meta a {
-            color: var(--secondary-color);
-            text-decoration: none;
-        }
-        .post-meta a:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-
-        .post-content {
-            font-size: 1.1rem; /* Slightly larger body text */
-            line-height: 1.8;
-            color: var(--gray-800); /* Slightly darker text for content */
-        }
-
-        .post-content h1, .post-content h2, .post-content h3, .post-content h4, .post-content h5, .post-content h6 {
-            margin-top: 2.5rem;
-            margin-bottom: 1.25rem;
-            font-weight: 700; /* Bolder headings */
-            line-height: 1.3;
-        }
-        .post-content h1 { font-size: 2.5rem; }
-        .post-content h2 { font-size: 2rem; }
-        .post-content h3 { font-size: 1.6rem; }
-        .post-content h4 { font-size: 1.3rem; }
-
-        .post-content p {
-            margin-bottom: 1.5rem;
-        }
-        .post-content ul, .post-content ol {
-            margin-bottom: 1.5rem;
-            padding-left: 1.8rem; /* More indentation */
-        }
-        .post-content li {
-            margin-bottom: 0.5rem;
-        }
-        .post-content blockquote {
-            margin: 1.5rem 0;
-            padding: 1rem 1.5rem;
-            border-left: 4px solid var(--primary-color);
-            background-color: var(--gray-100);
-            color: var(--gray-700);
-            font-style: italic;
-        }
-        .post-content blockquote p:last-child {
-            margin-bottom: 0;
-        }
-
-        .post-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            margin: 2rem 0; /* Increased margin */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            display: block; /* Prevent extra space below image */
-        }
-        .post-content figure { /* Center images with captions */
-             margin: 2rem 0;
-        }
-        .post-content figcaption {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            text-align: center;
-            margin-top: 0.5rem;
-        }
-
-        .post-content table {
-            width: 100%;
-            margin-bottom: 1.5rem;
-            border-collapse: collapse;
-        }
-        .post-content th, .post-content td {
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            text-align: left;
-        }
-        .post-content th {
-            background-color: var(--gray-100);
-            font-weight: 600;
-        }
-
-        /*--------------------------------------------------------------
-        # Code Blocks & Highlighting (Prism.js)
-        --------------------------------------------------------------*/
-        /* Ensure pre takes up space and handles background */
-        .post-content pre[class*="language-"] {
-            border-radius: 0.5rem;
-            margin: 2rem 0;
-            padding: 0; /* Remove padding from pre, handled by code block/header */
-            position: relative;
-            background-color: var(--code-bg); /* Ensure background for Prism */
-            border: 1px solid var(--dark-border-color); /* Subtle border */
-            overflow: hidden; /* Contain header and code */
-        }
-
-        /* Style for the code block itself inside pre */
-        .post-content pre code[class*="language-"] {
-            display: block;
-            padding: 1.25rem 1.5rem;
-            overflow-x: auto; /* Enable horizontal scroll */
-            font-size: 0.875em; /* Slightly smaller code font */
-            line-height: 1.6;
-            /* prism-tomorrow theme handles text color */
-        }
-
-        /* Remove Prism's default margin */
-        :not(pre) > code[class*="language-"], pre[class*="language-"] {
-            margin: 0;
-        }
-
-        /* Inline code */
-        :not(pre) > code {
-            background-color: rgba(59, 130, 246, 0.1); /* Subtle blue background */
-            color: var(--primary-hover);
-            padding: 0.2em 0.4em;
-            border-radius: 0.25rem;
-            font-size: 0.875em;
-        }
-
-        /* Code Header (Language Badge & Copy Button) */
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--gray-700); /* Header background */
-            color: var(--light-text);
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid var(--dark-border-color); /* Separator */
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-        }
-
-        .code-header .language-badge {
-            font-size: 0.75rem;
-            background-color: rgba(255,255,255,0.15);
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .code-header .copy-btn {
-            background: none;
-            border: none;
-            color: var(--gray-300);
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            transition: all 0.15s ease;
-        }
-        .code-header .copy-btn:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .code-header .copy-btn .bi-clipboard-check-fill {
-            color: var(--success-color); /* Green checkmark */
-        }
-
-        /*--------------------------------------------------------------
-        # Buttons & Badges
-        --------------------------------------------------------------*/
-        .btn {
-            font-weight: 500;
-            border-radius: 0.5rem;
-            padding: 0.6rem 1.2rem;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center; /* Center content */
-            gap: 0.4rem;
-            line-height: 1.5; /* Ensure text aligns well */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow */
-        }
-        .btn i {
-            font-size: 1rem;
-            line-height: 1; /* Prevent icon from affecting line height */
-        }
-        .btn:focus {
-            box-shadow: 0 0 0 0.25rem rgba(var(--bs-btn-focus-shadow-rgb), .5); /* Use Bootstrap's focus shadow */
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-            color: white;
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        .btn-outline-primary:hover, .btn-outline-primary:focus {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-
-        /* Badges (Tags/Categories) */
-        .badge {
-            font-weight: 500;
-            padding: 0.4em 0.75em; /* Adjusted padding */
-            border-radius: 2rem;
-            font-size: 0.75rem;
-            letter-spacing: 0.025em;
-            text-decoration: none;
-            display: inline-block;
-            margin: 0.1rem;
-            line-height: 1; /* Ensure consistent height */
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .badge-primary { /* Category style */
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--primary-color);
-        }
-        a.badge-primary:hover {
-             background-color: rgba(59, 130, 246, 0.2);
-             color: var(--primary-hover);
-             text-decoration: none;
-        }
-
-        .badge-secondary { /* Tag style */
-             background-color: var(--gray-100);
-             color: var(--gray-700);
-        }
-        a.badge-secondary:hover {
-             background-color: var(--gray-200);
-             color: var(--gray-800);
-             text-decoration: none;
-        }
-
-        /*--------------------------------------------------------------
-        # Footer
-        --------------------------------------------------------------*/
-        .footer {
-            background-color: var(--gray-800);
-            color: var(--gray-300); /* Lighter text for footer */
-            padding: 3.5rem 0 1.5rem; /* Increased top padding */
-            margin-top: 4rem;
-            border-top: 1px solid var(--gray-700);
-            font-size: 0.95rem; /* Slightly larger footer text */
-        }
-        .footer h5 {
-             color: white;
-             font-weight: 600;
-             margin-bottom: 1.25rem; /* More space below headings */
-        }
-        .footer p {
-            color: var(--gray-400); /* Muted paragraph text */
-        }
-        .footer a {
-            color: var(--gray-300);
-            transition: color 0.2s ease;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            color: white;
-            text-decoration: underline;
-        }
-        .footer .list-unstyled li {
-            margin-bottom: 0.6rem; /* Space between links */
-        }
-        .footer .list-unstyled a i {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            margin-right: 0.3rem;
-            position: relative;
-            top: -1px;
-        }
-
-        .footer .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px; /* Slightly larger */
-            height: 38px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--gray-300);
-            margin-right: 0.6rem;
-            transition: all 0.2s ease;
-            font-size: 1.1rem;
-        }
-        .footer .social-links a:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        .footer .border-top {
-            border-top-color: var(--gray-700) !important; /* Ensure dark border */
-            margin-top: 2.5rem !important;
-            padding-top: 1.5rem !important;
-        }
-        .footer .copyright-text {
-             color: var(--gray-500); /* Even more muted for copyright */
-             font-size: 0.9rem;
-        }
-        .footer .copyright-text i {
-             font-size: 0.9em; /* Match text size */
-        }
-
-        /*--------------------------------------------------------------
-        # Ads & Utilities
-        --------------------------------------------------------------*/
-        .advertisement {
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            background-color: var(--gray-100); /* Slightly distinct background */
-            text-align: center;
-            margin: 1.5rem 0;
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-        }
-        .advertisement hr {
-            border-top-color: var(--border-color);
-        }
-        .advertisement.header-ad, .advertisement.footer-ad {
-             background-color: var(--gray-100);
-        }
-
-        /* Reading time indicator */
-        .reading-time {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .reading-time i {
-            font-size: 1rem;
-        }
-
-        /* Social sharing buttons (within post) */
-        .social-share {
-            display: flex;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
-        }
-        .social-share-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            width: 100%; /* Take full width */
-            font-size: 1rem;
-            color: var(--dark-text);
-        }
-        .social-share a {
-            display: inline-flex; /* Use inline-flex for button-like behavior */
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem 1rem; /* Make them look like small buttons */
-            border-radius: 0.5rem;
-            background-color: var(--gray-100);
-            color: var(--gray-700);
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-            font-weight: 500;
-            gap: 0.4rem;
-            text-decoration: none;
-            border: 1px solid var(--gray-200);
-        }
-        .social-share a:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .social-share a i {
-            font-size: 1rem;
-        }
-
-        /* Alert Messages */
-        .alert-container {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1055; /* Above most elements */
-            min-width: 300px; /* Ensure alerts aren't too narrow */
-            max-width: 90%;
-        }
-        .alert {
-            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.25rem;
-        }
-        .alert i {
-            font-size: 1.25rem; /* Larger icons */
-            margin-right: 0.75rem;
-            flex-shrink: 0;
-        }
-        .alert .btn-close {
-            margin-left: auto;
-            padding-left: 1rem; /* Space before close button */
-        }
-        /* Specific alert colors */
-        .alert-success { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } .alert-success i { color: #065f46; }
-        .alert-danger, .alert-error { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } .alert-danger i, .alert-error i { color: #991b1b; }
-        .alert-warning { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; } .alert-warning i { color: #9a3412; }
-        .alert-info { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; } .alert-info i { color: #1e40af; }
-
-
-        /*--------------------------------------------------------------
-        # Highlight Boxes (Info, Warning, Tip, Note)
-        --------------------------------------------------------------*/
-        .info-box, .warning-box, .tip-box, .note-box {
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            margin: 2rem 0; /* Increased margin */
-            position: relative;
-            padding-left: 3.75rem; /* More space for icon */
-            border: 1px solid transparent;
-            border-left-width: 4px;
-        }
-        .info-box::before, .warning-box::before, .tip-box::before, .note-box::before {
-            font-family: "Bootstrap Icons";
-            position: absolute;
-            left: 1.25rem;
-            top: 1.25rem;
-            font-size: 1.6rem; /* Larger icons */
-            line-height: 1;
-        }
-        .info-box *:last-child, .warning-box *:last-child, .tip-box *:last-child, .note-box *:last-child {
-             margin-bottom: 0; /* Remove margin from last element inside */
-        }
-
-        .info-box { background-color: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); border-left-color: var(--primary-color); }
-        .info-box::before { content: "\F431"; color: var(--primary-color); } /* info-circle */
-
-        .warning-box { background-color: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.3); border-left-color: var(--warning-color); }
-        .warning-box::before { content: "\F33a"; color: var(--warning-color); } /* exclamation-triangle */
-
-        .tip-box { background-color: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3); border-left-color: var(--success-color); }
-        .tip-box::before { content: "\F46D"; color: var(--success-color); } /* lightbulb */
-
-        .note-box { background-color: rgba(107, 114, 128, 0.08); border-color: rgba(107, 114, 128, 0.3); border-left-color: var(--secondary-color); }
-        .note-box::before { content: "\F58E"; color: var(--secondary-color); } /* sticky */
-
-        /*--------------------------------------------------------------
-        # Table of Contents (TOC)
-        --------------------------------------------------------------*/
-        .toc {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            padding: 1.25rem;
-            margin-bottom: 2rem;
-            position: sticky;
-            top: 80px; /* Adjust based on sticky navbar height + some space */
-            max-height: calc(100vh - 100px);
-            overflow-y: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .toc-title {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1.1rem;
-            color: var(--dark-text);
-        }
-        .toc-title i { color: var(--primary-color); }
-        .toc ul { list-style-type: none; padding-left: 0; margin-bottom: 0; }
-        .toc ul ul { padding-left: 1.25rem; margin-top: 0.25rem; }
-        .toc li { margin-bottom: 0.25rem; }
-        .toc a {
-            display: block;
-            padding: 0.4rem 0.6rem; /* Adjusted padding */
-            color: var(--gray-700);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-radius: 0.25rem;
-            font-size: 0.9rem;
-            border-left: 3px solid transparent;
-        }
-        .toc a:hover {
-            color: var(--primary-color);
-            background-color: rgba(59, 130, 246, 0.05);
-            border-left-color: rgba(59, 130, 246, 0.3);
-            text-decoration: none;
-        }
-        .toc li.active > a { /* Requires JS to add 'active' class */
-             color: var(--primary-color);
-             font-weight: 600; /* Bold active link */
-             border-left-color: var(--primary-color);
-             background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        /*--------------------------------------------------------------
-        # Reading Progress Bar
-        --------------------------------------------------------------*/
-        .reading-progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px; /* Slightly thicker */
-            z-index: 1031; /* Above sticky navbar */
-            background-color: transparent;
-            pointer-events: none; /* Allow clicks through */
-        }
-        .reading-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-hover) 100%); /* Gradient effect */
-            width: 0;
-            transition: width 0.1s linear;
-            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.5);
-            border-radius: 0 2px 2px 0; /* Rounded end */
-        }
-
-        /*--------------------------------------------------------------
-        # Animations & Accessibility
-        --------------------------------------------------------------*/
-        .fade-in {
-            animation: fadeIn 0.6s ease-in-out; /* Slower fade */
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .visually-hidden-focusable:active,
-        .visually-hidden-focusable:focus {
-            position: absolute;
-            width: auto;
-            height: auto;
-            margin: 0;
-            overflow: visible;
-            clip: auto;
-            white-space: normal;
-            z-index: 1050;
-            padding: 1rem;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 0 0 0.5rem 0.5rem;
-            text-decoration: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            top: 0; /* Position at top */
-            left: 1rem;
-        }
-
-        /*--------------------------------------------------------------
-        # Responsive Adjustments
-        --------------------------------------------------------------*/
-        @media (max-width: 991.98px) { /* Navbar collapse breakpoint */
-             .navbar-nav { margin-top: 0.5rem; }
-             .nav-link { padding: 0.7rem 1rem; } /* Larger touch target */
-             .navbar .d-flex { /* Stack search and user buttons */
-                width: 100%;
-                margin-top: 0.75rem;
-                gap: 0.75rem; /* Increase gap */
-             }
-             .navbar .d-flex form { flex-grow: 1; }
-             .navbar .d-flex > div, .navbar .d-flex > a { flex-shrink: 0; }
-
-             .toc { /* Hide sticky TOC on medium screens and below */
-                 position: static;
-                 max-height: none;
-                 margin-top: 2rem;
-             }
-        }
-
-        @media (max-width: 767.98px) {
-            body { font-size: 15px; } /* Slightly smaller base font on mobile */
-            .card-img-top, .featured-post .card-img-top { height: 220px; }
-            .btn { padding: 0.75rem 1rem; min-height: 44px; }
-            .post-content { font-size: 1rem; }
-            .post-content h1 { font-size: 2rem; }
-            .post-content h2 { font-size: 1.75rem; }
-            .post-content h3 { font-size: 1.4rem; }
-
-            .footer .text-md-end, .footer .text-md-start {
-                 text-align: center !important;
-            }
-            .footer .text-md-end { margin-top: 1rem; }
-            .footer .social-links { text-align: center; } /* Center social links */
-        }
-
-        /*--------------------------------------------------------------
-        # Dark Mode Styles
-        --------------------------------------------------------------*/
-        @media (prefers-color-scheme: dark) {
-            :root { /* Override variables for dark mode */
-                --light-bg: var(--dark-mode-bg);
-                --dark-text: var(--dark-mode-text);
-                --card-bg: var(--dark-mode-card);
-                --border-color: var(--dark-border-color);
-                --gray-100: #1f2937; /* Adjust grays */
-                --gray-200: #374151;
-                --gray-700: #d1d5db;
-                --gray-800: #e5e7eb;
-            }
-
-            body { background-color: var(--dark-mode-bg); color: var(--dark-mode-text); }
-            h1, h2, h3, h4, h5, h6 { color: var(--dark-mode-text); }
-
-            .navbar {
-                background-color: rgba(31, 41, 55, 0.85); /* Darker semi-transparent */
-                border-bottom-color: var(--border-color);
-            }
-            .navbar-brand { color: var(--dark-mode-text); }
-            .navbar-brand:hover { color: var(--dark-mode-text); }
-            .navbar-toggler { filter: invert(1) grayscale(100%) brightness(200%); } /* White icon */
-
-            .nav-link { color: var(--gray-300); } /* Lighter nav links */
-            .nav-link:hover, .nav-link:focus { background-color: rgba(75, 85, 99, 0.3); color: white; }
-            .nav-link.active { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; } /* Lighter blue active */
-
-            .dropdown-menu { background-color: var(--dark-mode-card); border-color: var(--border-color); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3); }
-            .dropdown-item { color: var(--dark-mode-text); }
-            .dropdown-item i { color: var(--gray-400); }
-            .dropdown-item:hover, .dropdown-item:focus { background-color: rgba(75, 85, 99, 0.5); color: white; }
-            .dropdown-item:hover i, .dropdown-item:focus i { color: white; }
-            .dropdown-divider { border-top-color: var(--border-color); }
-
-            .card { background-color: var(--dark-mode-card); border-color: var(--border-color); }
-            .card-header { border-bottom-color: var(--border-color); }
-            .card-footer { background-color: var(--gray-800); border-top-color: var(--border-color); color: var(--gray-400); }
-
-            .form-control { background-color: var(--gray-700); color: var(--dark-mode-text); border-color: var(--gray-600); }
-            .form-control::placeholder { color: var(--gray-400); }
-            .form-control:focus { background-color: var(--gray-700); color: var(--dark-mode-text); border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.3); }
-            .input-group-text { background-color: var(--gray-600); border-color: var(--gray-600); color: var(--dark-mode-text); }
-
-            .advertisement { background-color: var(--dark-mode-card); border-color: var(--border-color); color: var(--gray-400); }
-            .advertisement hr { border-top-color: var(--border-color); }
-            .advertisement.header-ad, .advertisement.footer-ad { background-color: var(--gray-800); }
-
-            .post-meta, .post-meta a, .reading-time { color: var(--gray-400); }
-            .post-meta a:hover { color: var(--primary-color); }
-            .post-content { color: var(--dark-mode-text); }
-            .post-content blockquote { background-color: var(--gray-800); color: var(--gray-300); border-left-color: var(--primary-color); }
-            .post-content th { background-color: var(--gray-700); }
-            .post-content td, .post-content th { border-color: var(--gray-600); }
-            .post-content figcaption { color: var(--gray-400); }
-
-            .social-share { border-top-color: var(--border-color); }
-            .social-share-title { color: var(--dark-mode-text); }
-            .social-share a { background-color: var(--gray-700); color: var(--gray-300); border-color: var(--gray-600); }
-            .social-share a:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
-
-            :not(pre) > code { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; } /* Lighter blue */
-
-            .badge-primary { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-            a.badge-primary:hover { background-color: rgba(59, 130, 246, 0.3); color: #bfdbfe; }
-            .badge-secondary { background-color: var(--gray-700); color: var(--gray-300); }
-            a.badge-secondary:hover { background-color: var(--gray-600); color: var(--gray-100); }
-
-            .alert-success { background-color: #064e3b; color: #a7f3d0; border-color: #059669; } .alert-success i { color: #a7f3d0; }
-            .alert-danger, .alert-error { background-color: #7f1d1d; color: #fecaca; border-color: #ef4444; } .alert-danger i, .alert-error i { color: #fecaca; }
-            .alert-warning { background-color: #7c2d12; color: #fed7aa; border-color: #f97316; } .alert-warning i { color: #fed7aa; }
-            .alert-info { background-color: #1e3a8a; color: #bfdbfe; border-color: #3b82f6; } .alert-info i { color: #bfdbfe; }
-            .alert .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-            .info-box, .warning-box, .tip-box, .note-box { color: var(--dark-mode-text); }
-            .info-box { background-color: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4); border-left-color: #60a5fa; } .info-box::before { color: #60a5fa; }
-            .warning-box { background-color: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); border-left-color: #fbbf24; } .warning-box::before { color: #fbbf24; }
-            .tip-box { background-color: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); border-left-color: #34d399; } .tip-box::before { color: #34d399; }
-            .note-box { background-color: rgba(107, 114, 128, 0.15); border-color: rgba(107, 114, 128, 0.4); border-left-color: #9ca3af; } .note-box::before { color: #9ca3af; }
-
-            .toc { background-color: var(--dark-mode-card); border-color: var(--border-color); }
-            .toc-title { color: var(--dark-mode-text); }
-            .toc a { color: var(--gray-300); }
-            .toc a:hover { color: #93c5fd; background-color: rgba(59, 130, 246, 0.1); border-left-color: rgba(59, 130, 246, 0.4); }
-            .toc li.active > a { color: #93c5fd; background-color: rgba(59, 130, 246, 0.15); border-left-color: #60a5fa; }
-
-            /* Ensure Prism styles adapt */
-            .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #9ca3af; } /* Gray comments */
-            .token.punctuation { color: #d1d5db; }
-            /* Other token colors from prism-tomorrow should generally work well */
-        }
-
-    </style>
     {% block extra_head %}{% endblock %} </head>
 <body>
     <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
@@ -978,39 +65,39 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'blog:home' %}" aria-current="{% if request.resolver_match.url_name == 'home' %}page{% endif %}">
-                                <i class="bi bi-house-door" aria-hidden="true"></i> Home
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'blog:home' %}" aria-current="{% if request.resolver_match.url_name == 'home' %}page{% endif %}" aria-label="Home">
+                                <i class="bi bi-house-door" aria-hidden="true"></i> <span class="visually-hidden">Home</span> Home
                             </a>
                         </li>
                         {% with categories|slice:":4" as nav_categories %}
                             {% for category in nav_categories %}
                                 <li class="nav-item">
-                                    <a class="nav-link {% if category.slug == current_category_slug %}active{% endif %}" href="{% url 'blog:category_detail' slug=category.slug %}">
+                                    <a class="nav-link {% if category.slug == current_category_slug %}active{% endif %}" href="{% url 'blog:category_detail' slug=category.slug %}" aria-label="Category: {{ category.name }}">
                                          {{ category.name }}
                                     </a>
                                 </li>
                             {% endfor %}
                         {% endwith %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMore" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false" aria-label="More menu">
-                                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i> More
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMore" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                More
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMore">
                                 <li><a class="dropdown-item" href="{% url 'blog:category_list' %}"><i class="bi bi-tags" aria-hidden="true"></i> All Categories</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle" aria-hidden="true"></i> About</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-envelope" aria-hidden="true"></i> Contact</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:about' %}"><i class="bi bi-info-circle" aria-hidden="true"></i> About</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:contact' %}"><i class="bi bi-envelope" aria-hidden="true"></i> Contact</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-shield-check" aria-hidden="true"></i> Privacy Policy</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-file-text" aria-hidden="true"></i> Terms of Service</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:privacy_policy' %}"><i class="bi bi-shield-check" aria-hidden="true"></i> Privacy Policy</a></li>
+                                <li><a class="dropdown-item" href="{% url 'blog:terms_of_service' %}"><i class="bi bi-file-text" aria-hidden="true"></i> Terms of Service</a></li>
                             </ul>
                         </li>
                     </ul>
 
-                    <form class="d-flex me-lg-2 mb-3 mb-lg-0" role="search" action="{% url 'blog:search_results' %}" method="get">
+                    <form class="d-flex me-lg-2 mb-3 mb-lg-0 search-form-container" role="search" action="{% url 'blog:search_results' %}" method="get" aria-label="Site search">
                         <div class="input-group">
-                            <input type="search" name="q" class="form-control" placeholder="Search..."
+                            <input type="search" name="q" class="form-control" placeholder="Search for posts..." 
                                    aria-label="Search posts" value="{{ request.GET.q|default:'' }}">
+                            <i class="bi bi-search search-icon" aria-hidden="true"></i>
                             <button class="btn btn-outline-primary" type="submit" aria-label="Search">
                                 <i class="bi bi-search" aria-hidden="true"></i>
                             </button>
@@ -1020,7 +107,7 @@
                     <div class="d-flex align-items-center">
                         {% if user.is_authenticated %}
                             <div class="dropdown me-2">
-                                <button class="btn btn-outline-primary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                                <button class="btn btn-outline-primary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications" aria-haspopup="true">
                                     <i class="bi bi-bell" aria-hidden="true"></i>
                                     {% if notifications %}
                                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">{{ notifications|length }}</span>
@@ -1046,9 +133,13 @@
                         {% if user.is_authenticated %}
                             <div class="dropdown">
                                 <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" type="button"
-                                        id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="User menu">
-                                    <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
-                                    <span class="d-none d-sm-inline">{{ user.username|truncatechars:15 }}</span> {# Show username on larger screens #}
+                                        id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="User menu" aria-haspopup="true">
+                                    {% if user.blog_profile and user.blog_profile.avatar %}
+                                        <img src="{{ user.blog_profile.avatar.url }}" alt="{{ user.username }} profile picture" class="rounded-circle me-1" style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                        <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                                    {% endif %}
+                                    <span class="d-none d-sm-inline">{{ user.username|truncatechars:15 }}</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     {% if user.is_staff or user.is_superuser %}
@@ -1091,7 +182,16 @@
                                 <i class="bi bi-person-plus" aria-hidden="true"></i> Register
                             </a>
                         {% endif %}
-                    </div> </div> </div> </nav>
+                    </div>
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle" class="btn btn-outline-primary ms-2" aria-label="Toggle dark/light theme">
+                        <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                        <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                        <span class="d-none d-md-inline ms-1">Theme</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
 
         {% block header_banner %}{% endblock %}
     </header>
@@ -1162,7 +262,7 @@
         </div>
         {% endif %}
 
-        <div class="container py-4">
+        <div class="container py-4"></div>
             <div class="row gy-4"> {# Use gy-4 for vertical gap #}
                 <div class="col-lg-4 col-md-6">
                     <div class="d-flex align-items-center mb-3">
@@ -1183,17 +283,17 @@
                     <h5 class="text-white">Navigation</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'blog:home' %}"><i class="bi bi-chevron-right"></i> Home</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> About</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Contact</a></li>
+                        <li><a href="{% url 'blog:about' %}"><i class="bi bi-chevron-right"></i> About</a></li> {# Updated #}
+                        <li><a href="{% url 'blog:contact' %}"><i class="bi bi-chevron-right"></i> Contact</a></li> {# Updated #}
                         <li><a href="{% url 'blog:category_list' %}"><i class="bi bi-chevron-right"></i> Categories</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-3 col-6"> {# Adjusted columns for better spacing #}
                     <h5 class="text-white">Legal</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Privacy Policy</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Terms of Service</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Cookie Policy</a></li>
+                        <li><a href="{% url 'blog:privacy_policy' %}"><i class="bi bi-chevron-right"></i> Privacy Policy</a></li> {# Updated #}
+                        <li><a href="{% url 'blog:terms_of_service' %}"><i class="bi bi-chevron-right"></i> Terms of Service</a></li> {# Updated #}
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Cookie Policy</a></li> {# Keep as # for now #}
                     </ul>
                 </div>
                 <div class="col-lg-4 col-md-12"> {# Wider on large, full on medium #}
@@ -1205,7 +305,7 @@
                             <input type="email" class="form-control" placeholder="Your email address" name="email"
                                    aria-label="Email address" required>
                             <button class="btn btn-primary" type="submit" aria-label="Subscribe to newsletter">
-                                <i class="bi bi-send me-1"></i> Subscribe
+                                <i class="bi bi-send me-1" aria-hidden="true"></i> Subscribe
                             </button>
                         </div>
                     </form>
@@ -1222,136 +322,16 @@
                 </div>
             </div> </div> </footer>
 
+    <!-- Back to top button -->
+    <button id="back-to-top" class="btn btn-primary rounded-circle position-fixed" aria-label="Back to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous" defer></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-    <script>
-        // Wait for the DOM to be fully loaded before running scripts
-        document.addEventListener('DOMContentLoaded', function() {
-
-            /**
-             * Updates the reading progress bar based on scroll position.
-             */
-            const progressBar = document.getElementById('readingProgressBar');
-            if (progressBar) {
-                const updateProgressBar = () => {
-                    // Calculate the scrollable height
-                    const scrollHeight = document.documentElement.scrollHeight;
-                    const clientHeight = document.documentElement.clientHeight;
-                    const totalHeight = scrollHeight - clientHeight;
-
-                    // Get current scroll position
-                    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-
-                    // Calculate progress percentage
-                    const progress = totalHeight > 0 ? (scrollPosition / totalHeight) * 100 : 0;
-
-                    // Update the progress bar width, ensuring it doesn't exceed 100%
-                    progressBar.style.width = Math.min(progress, 100) + '%';
-                };
-
-                // Add scroll event listener
-                window.addEventListener('scroll', updateProgressBar, { passive: true }); // Use passive listener for performance
-
-                // Initial calculation on load
-                updateProgressBar();
-            }
-
-            /**
-             * Adds a header with language badge and copy button to code blocks.
-             */
-            const codeBlocks = document.querySelectorAll('.post-content pre > code[class*="language-"]');
-            codeBlocks.forEach(codeBlock => {
-                const preElement = codeBlock.parentElement;
-                if (!preElement || preElement.querySelector('.code-header')) {
-                    return; // Skip if no parent or header already exists
-                }
-
-                // Extract language from class name (e.g., "language-python")
-                let language = 'code'; // Default
-                const className = codeBlock.className;
-                const match = className.match(/language-(\w+)/);
-                if (match && match[1]) {
-                    language = match[1];
-                }
-
-                // Create header elements
-                const header = document.createElement('div');
-                header.className = 'code-header';
-
-                const langBadge = document.createElement('span');
-                langBadge.className = 'language-badge';
-                langBadge.textContent = language.toUpperCase();
-
-                const copyButton = document.createElement('button');
-                copyButton.className = 'copy-btn';
-                copyButton.setAttribute('aria-label', 'Copy code to clipboard');
-                copyButton.innerHTML = '<i class="bi bi-clipboard" aria-hidden="true"></i> Copy'; // Initial state
-
-                // Add click listener for copy functionality
-                copyButton.addEventListener('click', () => {
-                    const codeToCopy = codeBlock.textContent;
-                    navigator.clipboard.writeText(codeToCopy).then(() => {
-                        // Visual feedback on success
-                        copyButton.innerHTML = '<i class="bi bi-clipboard-check-fill" aria-hidden="true"></i> Copied!';
-                        copyButton.disabled = true;
-                        setTimeout(() => {
-                            copyButton.innerHTML = '<i class="bi bi-clipboard" aria-hidden="true"></i> Copy';
-                            copyButton.disabled = false;
-                        }, 2500); // Reset after 2.5 seconds
-                    }).catch(err => {
-                        // Log error and provide minimal feedback (optional)
-                        console.error('Failed to copy code: ', err);
-                        copyButton.innerHTML = '<i class="bi bi-x-octagon-fill" aria-hidden="true"></i> Error';
-                         setTimeout(() => {
-                            copyButton.innerHTML = '<i class="bi bi-clipboard" aria-hidden="true"></i> Copy';
-                        }, 2500);
-                    });
-                });
-
-                // Assemble and insert header
-                header.appendChild(langBadge);
-                header.appendChild(copyButton);
-                preElement.insertBefore(header, codeBlock);
-
-                // Add accessibility attributes to the <pre> element
-                preElement.setAttribute('role', 'region');
-                preElement.setAttribute('aria-label', `${language} code snippet`);
-            });
-
-            /**
-             * Initializes Bootstrap Tooltips.
-             */
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-
-            /**
-             * Auto-dismisses non-error alerts after a delay.
-             */
-            const alertElements = document.querySelectorAll('.alert-dismissible.fade.show');
-            alertElements.forEach(function(alert) {
-                // Only auto-dismiss info, success, warning (not danger/error)
-                if (!alert.classList.contains('alert-danger') && !alert.classList.contains('alert-error')) {
-                    setTimeout(function() {
-                        const bsAlert = bootstrap.Alert.getInstance(alert);
-                        if (bsAlert) {
-                            bsAlert.close();
-                        }
-                    }, 6000); // Dismiss after 6 seconds
-                }
-            });
-
-            /**
-             * Optional: Add 'active' class to TOC links based on scroll position
-             * (Requires headings in post content to have IDs)
-             */
-            // Add TOC active state logic here if needed
-
-        }); // End DOMContentLoaded
-    </script>
+    <script src="{% static 'blog/js/base_custom.js' %}" defer></script>
 
     {% block extra_js %}{% endblock %}
 

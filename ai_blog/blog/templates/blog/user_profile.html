@@ -10,8 +10,8 @@
     <div class="col-lg-4 mb-4">
         <div class="card">
             <div class="card-body text-center">
-                {% if profile_user.accounts_profile.profile_picture %}
-                    <img src="{{ profile_user.accounts_profile.profile_picture.url }}" alt="{{ profile_user.username }}" 
+                {% if profile_user.blog_profile and profile_user.blog_profile.avatar %}
+                    <img src="{{ profile_user.blog_profile.avatar.url }}" alt="{{ profile_user.username }}" 
                          class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
                 {% else %}
                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" 
@@ -21,16 +21,16 @@
                 {% endif %} 
                 
                 <h3 class="card-title">
-                    {% if profile_user.accounts_profile.display_name %}
-                        {{ profile_user.accounts_profile.display_name }}
+                    {% if profile_user.blog_profile.display_name %}
+                        {{ profile_user.blog_profile.display_name }}
                     {% else %}
                         {{ profile_user.username }}
                     {% endif %}
                 </h3>
                 
-                {% if profile_user.accounts_profile.location %}
+                {% if profile_user.blog_profile.location %}
                     <p class="text-muted mb-2">
-                        <i class="bi bi-geo-alt"></i> {{ profile_user.accounts_profile.location }}
+                        <i class="bi bi-geo-alt"></i> {{ profile_user.blog_profile.location }}
                     </p>
                 {% endif %}
                 
@@ -38,34 +38,34 @@
                     <small>Member since {{ profile_user.date_joined|date:"F Y" }}</small>
                 </p>
                 
-                {% if profile_user.accounts_profile.bio %}
+                {% if profile_user.blog_profile.bio %}
                     <div class="mt-3 mb-3">
-                        <p>{{ profile_user.accounts_profile.bio }}</p>
+                        <p>{{ profile_user.blog_profile.bio }}</p>
                     </div>
                 {% endif %}
                 
                 <!-- Social Links -->
                 <div class="social-links mt-3">
-                    {% if profile_user.accounts_profile.website %}
-                        <a href="{{ profile_user.accounts_profile.website }}" class="btn btn-sm btn-outline-secondary me-1" target="_blank" rel="noopener">
+                    {% if profile_user.blog_profile.website %}
+                        <a href="{{ profile_user.blog_profile.website }}" class="btn btn-sm btn-outline-secondary me-1" target="_blank" rel="noopener">
                             <i class="bi bi-globe"></i> Website
                         </a>
                     {% endif %}
                     
-                    {% if profile_user.accounts_profile.twitter %}
-                        <a href="https://twitter.com/{{ profile_user.accounts_profile.twitter }}" class="btn btn-sm btn-outline-primary me-1" target="_blank" rel="noopener">
+                    {% if profile_user.blog_profile.twitter %}
+                        <a href="https://twitter.com/{{ profile_user.blog_profile.twitter }}" class="btn btn-sm btn-outline-primary me-1" target="_blank" rel="noopener">
                             <i class="bi bi-twitter"></i> Twitter
                         </a>
                     {% endif %}
                     
-                    {% if profile_user.accounts_profile.github %}
-                        <a href="https://github.com/{{ profile_user.accounts_profile.github }}" class="btn btn-sm btn-outline-dark me-1" target="_blank" rel="noopener">
+                    {% if profile_user.blog_profile.github %}
+                        <a href="https://github.com/{{ profile_user.blog_profile.github }}" class="btn btn-sm btn-outline-dark me-1" target="_blank" rel="noopener">
                             <i class="bi bi-github"></i> GitHub
                         </a>
                     {% endif %}
                     
-                    {% if profile_user.profile.linkedin %}
-                        <a href="https://linkedin.com/in/{{ profile_user.profile.linkedin }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                    {% if profile_user.blog_profile.linkedin %}
+                        <a href="https://linkedin.com/in/{{ profile_user.blog_profile.linkedin }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                             <i class="bi bi-linkedin"></i> LinkedIn
                         </a>
                     {% endif %}

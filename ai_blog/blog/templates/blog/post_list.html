@@ -22,8 +22,8 @@
           </h2>
           <div class="mb-2 text-muted">
              <div class="d-inline-flex align-items-center">
-              {% if posts.0.author.accounts_profile.profile_picture %}
-                <img src="{{ posts.0.author.accounts_profile.profile_picture.url }}" alt="{{ posts.0.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px;">
+              {% if posts.0.author.blog_profile and posts.0.author.blog_profile.avatar %}
+                <img src="{{ posts.0.author.blog_profile.avatar.url }}" alt="{{ posts.0.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px;">
               {% else %}
                 <i class="bi bi-person-circle me-2"></i>
               {% endif %}
@@ -49,6 +49,9 @@
         </div>
       </div>
       
+      <!-- Include newsletter component after featured post -->
+      {% include "blog/components/newsletter_signup.html" %}
+      
       <!-- Start loop from second post if we have a featured post -->
       {% with posts_to_display=posts|slice:"1:" overall_counter=0 %}
         {% if posts_to_display %}
@@ -68,7 +71,14 @@
                     </a>
                   </h3>
                   <div class="mb-2 text-muted">
-                    <i class="bi bi-person"></i> {{ post.author.username }}
+                    <div class="d-inline-flex align-items-center">
+                      {% if post.author.blog_profile and post.author.blog_profile.avatar %}
+                        <img src="{{ post.author.blog_profile.avatar.url }}" alt="{{ post.author.username }} profile picture" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                      {% else %}
+                        <i class="bi bi-person-circle me-2" aria-hidden="true" style="font-size: 1.5rem;"></i>
+                      {% endif %}
+                      {{ post.author.username }}
+                    </div>
                     <span class="mx-1">|</span>
                     <i class="bi bi-calendar"></i> {{ post.created_at|date:"M d, Y" }}
                     <span class="mx-1">|</span>
@@ -118,7 +128,14 @@
                   </a>
                 </h3>
                 <div class="mb-2 text-muted">
-                  <i class="bi bi-person"></i> {{ post.author.username }}
+                  <div class="d-inline-flex align-items-center">
+                    {% if post.author.blog_profile and post.author.blog_profile.avatar %}
+                      <img src="{{ post.author.blog_profile.avatar.url }}" alt="{{ post.author.username }} profile picture" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                    {% else %}
+                      <i class="bi bi-person-circle me-2" aria-hidden="true" style="font-size: 1.5rem;"></i>
+                    {% endif %}
+                    {{ post.author.username }}
+                  </div>
                   <span class="mx-1">|</span>
                   <i class="bi bi-calendar"></i> {{ post.created_at|date:"M d, Y" }}
                   <span class="mx-1">|</span>
@@ -246,20 +263,8 @@
       </div>
     </div>
     
-    <!-- Newsletter signup -->
-    <div class="card mb-4 bg-primary text-white">
-      <div class="card-body">
-        <h4 class="card-title">Subscribe to Newsletter</h4>
-        <p>Get the latest posts delivered right to your inbox.</p>
-        <form method="post" action="{% url 'blog:newsletter_signup' %}">
-          {% csrf_token %}
-          <div class="input-group mb-3">
-            <input type="email" class="form-control" placeholder="Your email address" name="email" required>
-            <button class="btn btn-outline-light" type="submit">Subscribe</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Newsletter signup in sidebar (reusing component) -->
+    {% include "blog/components/newsletter_signup.html" %}
     
     <!-- Advertisement -->
     {% for ad in ads %}

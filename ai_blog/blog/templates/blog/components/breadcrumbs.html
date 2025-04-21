@@ -1,0 +1,25 @@
+<!-- Breadcrumb navigation component -->
+<nav aria-label="breadcrumb" class="breadcrumb-container">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'blog:home' %}">Home</a></li>
+        {% if category %}
+            <li class="breadcrumb-item"><a href="{% url 'blog:category_list' %}">Categories</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        {% elif tag %}
+            <li class="breadcrumb-item"><a href="{% url 'blog:tag_list' %}">Tags</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ tag.name }}</li>
+        {% elif series %}
+            <li class="breadcrumb-item"><a href="{% url 'blog:series_list' %}">Series</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ series.title }}</li>
+        {% elif post %}
+            {% if post.categories.exists %}
+                {% with first_category=post.categories.first %}
+                    <li class="breadcrumb-item"><a href="{% url 'blog:category_detail' slug=first_category.slug %}">{{ first_category.name }}</a></li>
+                {% endwith %}
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">{{ post.title|truncatechars:30 }}</li>
+        {% elif page_title %}
+            <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+        {% endif %}
+    </ol>
+</nav>

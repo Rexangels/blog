@@ -1,7 +1,8 @@
 # blog/urls.py
 from django.urls import path
+from django.views.generic import TemplateView # Import TemplateView
 from . import views
-# Import the new view if it's defined, e.g., CategoryListView
+from .feeds import LatestPostsFeed # Corrected import
 from .views import (
     AdvancedSearchView, NewsletterSignupView, SeriesDetailView,
     UserProfileUpdateView, PostListView, PostDetailView, PostCreateView,
@@ -32,6 +33,7 @@ urlpatterns = [
 
     # Search
     path('search/', views.AdvancedSearchView.as_view(), name='search_results'),
+    path('search/autocomplete/', views.search_autocomplete, name='search_autocomplete'),
 
     # Newsletter
     path('newsletter/signup/', views.NewsletterSignupView.as_view(), name='newsletter_signup'),
@@ -56,5 +58,11 @@ urlpatterns = [
     path('post/<slug:slug>/like/', views.toggle_like, name='post_like'),
 
     # RSS Feed (Assuming you have this view from the previous example)
-    path('rss/', views.LatestPostsFeed(), name='rss_feed'), # Added RSS feed URL
+    path('rss/', LatestPostsFeed(), name='rss_feed'), # Added RSS feed URL
+
+    # Static Pages
+    path('about/', TemplateView.as_view(template_name='blog/static_pages/about.html'), name='about'),
+    path('contact/', TemplateView.as_view(template_name='blog/static_pages/contact.html'), name='contact'),
+    path('privacy-policy/', TemplateView.as_view(template_name='blog/static_pages/privacy_policy.html'), name='privacy_policy'),
+    path('terms-of-service/', TemplateView.as_view(template_name='blog/static_pages/terms_of_service.html'), name='terms_of_service'),
 ]

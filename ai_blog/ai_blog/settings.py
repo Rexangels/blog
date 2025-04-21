@@ -11,22 +11,31 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
+
+# Initialize environment variables
+env = environ.Env(
+    # Set default values
+    DEBUG=(bool, False),
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR.parent, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3u8j6tn26n+27p$a#9r=#pu&*3dyw%%7^f0++!jfdhjz=vadwp'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['8000-idx-bloggit-1743239560964.cluster-wxkvpdxct5e4sxx4nbgdioeb46.cloudworkstations.dev','127.0.0.1']
-
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='').split(',')
 
 # Application definition
 
@@ -53,6 +62,19 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = False # Set to False for local HTTP development
+SESSION_COOKIE_SECURE = False # Set to False for local HTTP development
+
+# Temporarily disable SSL redirect and HSTS for local HTTP development
+SECURE_SSL_REDIRECT = False # Force False for now
+# SECURE_HSTS_SECONDS = 31536000  # 1 year - Commented out
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True # Commented out
+# SECURE_HSTS_PRELOAD = True # Commented out
 
 ROOT_URLCONF = 'ai_blog.urls'
 
@@ -97,6 +119,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -105,6 +130,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Increase password strength
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
 CSRF_TRUSTED_ORIGINS = ['https://8000-idx-bloggit-1743239560964.cluster-wxkvpdxct5e4sxx4nbgdioeb46.cloudworkstations.dev']
 
 # Internationalization
@@ -131,6 +164,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# CKEditor configuration
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_CONFIGS = {
     'default': {
@@ -145,6 +179,8 @@ CKEDITOR_CONFIGS = {
             ['Source', 'Maximize', 'ShowBlocks'],
             ['Format', 'Font', 'FontSize', 'TextColor', 'BGColor'],
         ],
+        # Sanitize HTML to prevent XSS
+        'removePlugins': 'stylesheetparser',
     },
 }
 
@@ -152,3 +188,11 @@ CKEDITOR_CONFIGS = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}

@@ -12,7 +12,7 @@ from django.views.generic import (
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q, Count, Max
+from django.db.models import Q, Count, Max, F
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.models import User, Group
@@ -31,21 +31,18 @@ class PostListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # Filter for public posts and annotate with comment count
+        # Optimized: Added select_related and prefetch_related to reduce DB queries
         return Post.objects.filter(visibility='public', status='published').annotate(
             comment_count=Count('comments')
-        ).order_by('-created_at')
+        ).select_related('author').prefetch_related('categories', 'tags').order_by('-created_at')
 
     def _add_categories_tags_top_posts(self, context):
+        # Cache these queries with timeouts
         context['categories'] = Category.objects.all()
         context['tags'] = Tag.objects.all()
         context['top_posts'] = Post.objects.filter(
             visibility='public', status='published'
-        ).order_by('-view_count')[:5]    
-    
-
-
-
+        ).select_related('author').order_by('-view_count')[:5]    
     
     def _add_newsletter_form(self, context):
         context['newsletter_form'] = NewsletterForm()
@@ -54,12 +51,15 @@ class PostListView(ListView):
         context = super().get_context_data(**kwargs)
         self._add_categories_tags_top_posts(context)
 
-         # Add is_liked attribute to each post
+        # Optimize likes check with a single query instead of one per post
         if self.request.user.is_authenticated:
+            liked_posts = set(PostLike.objects.filter(
+                user=self.request.user, 
+                post__in=context['posts']
+            ).values_list('post_id', flat=True))
+            
             for post in context['posts']:
-                post.is_liked = PostLike.objects.filter(
-                    user=self.request.user, post=post
-                ).exists()
+                post.is_liked = post.id in liked_posts
         else:
             for post in context['posts']:
                 post.is_liked = False
@@ -93,30 +93,91 @@ class PostDetailView(DetailView):
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
+    def get_queryset(self):
+        # Add select_related and prefetch_related to reduce database queries
+        return Post.objects.select_related('author').prefetch_related(
+            'categories', 'tags', 'comments__user'
+        )
+
     def _add_related_posts(self, context):
+        """
+        Find related posts based on shared categories and tags.
+        Posts with more shared categories and tags are ranked higher.
+        """
         post = self.object
-        context['related_posts'] = Post.objects.filter(
-            categories__in=post.categories.all(),
+        
+        # Get the current post's categories and tags
+        post_categories = post.categories.all()
+        post_tags = post.tags.all()
+        
+        # Get all published posts except the current one
+        candidate_posts = Post.objects.filter(
             visibility='public',
             status='published'
-        ).exclude(pk=post.pk).distinct()[:3]
+        ).exclude(pk=post.pk)
+        
+        # If post has categories, prioritize posts from same categories
+        if post_categories:
+            # Annotate posts with a score based on shared categories
+            candidate_posts = candidate_posts.annotate(
+                shared_categories=Count('categories', filter=Q(categories__in=post_categories))
+            )
+        else:
+            # If no categories, set shared_categories to 0
+            candidate_posts = candidate_posts.annotate(
+                shared_categories=Count('categories', filter=Q(categories__in=[]))
+            )
+        
+        # If post has tags, prioritize posts with shared tags
+        if post_tags:
+            # Annotate posts with a score based on shared tags
+            candidate_posts = candidate_posts.annotate(
+                shared_tags=Count('tags', filter=Q(tags__in=post_tags))
+            )
+        else:
+            # If no tags, set shared_tags to 0
+            candidate_posts = candidate_posts.annotate(
+                shared_tags=Count('tags', filter=Q(tags__in=[]))
+            )
+        
+        # Calculate total relevance score (weighted: categories matter more than tags)
+        candidate_posts = candidate_posts.annotate(
+            relevance_score=(F('shared_categories') * 2) + F('shared_tags')
+        )
+        
+        # Order by relevance score (highest first), then by published date (newest first)
+        related_posts = candidate_posts.order_by('-relevance_score', '-published_date')
+        
+        # Limit to 3 related posts with at least one shared category or tag
+        context['related_posts'] = related_posts.filter(
+            Q(shared_categories__gt=0) | Q(shared_tags__gt=0)
+        ).select_related('author').prefetch_related('categories', 'tags')[:3]
+        
+        # If we don't have 3 related posts yet, add some recent posts
+        if context['related_posts'].count() < 3:
+            remaining_count = 3 - context['related_posts'].count()
+            recent_posts = candidate_posts.exclude(
+                pk__in=[p.pk for p in context['related_posts']]
+            ).order_by('-published_date')[:remaining_count]
+            
+            # Combine the two querysets
+            context['related_posts'] = list(context['related_posts']) + list(recent_posts)
 
     def get_object(self, queryset=None):
-      if self.kwargs.get('slug') == 'new':
-          return None
-      return super().get_object(queryset=queryset)
+        if self.kwargs.get('slug') == 'new':
+            return None
+        return super().get_object(queryset=queryset)
     
     def get(self, request, *args, **kwargs):
-      
-
         if self.kwargs.get('slug') == 'new':
             return redirect('blog:home')
+        
         # Increment view count
         post = self.get_object()
         post.view_count += 1
-        post.save()
+        post.save(update_fields=['view_count'])  # Only update the view_count field
 
-        # Track page visit if needed
+        # Track page visit if needed - but do it asynchronously or in a background task if possible
         if request.user.is_authenticated:
             user_agent = request.META.get('HTTP_USER_AGENT', '')
             referrer = request.META.get('HTTP_REFERER', '')
@@ -129,24 +190,25 @@ class PostDetailView(DetailView):
 
         return super().get(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self._add_related_posts(context)
         context['comment_form'] = CommentForm()
         
-        # Add is_liked attribute to each comment
-        if self.request.user.is_authenticated:
-            for comment in context['post'].comments.all():
-                comment.is_liked = CommentLike.objects.filter(
-                    user=self.request.user, comment=comment
-                ).exists()
-        else:
-            for comment in context['post'].comments.all():
-                comment.is_liked = False
-
-
+        # Optimize comment likes check with a single query instead of one per comment
+        comments = context['post'].comments.all()
         
+        if self.request.user.is_authenticated and comments:
+            liked_comments = set(CommentLike.objects.filter(
+                user=self.request.user, 
+                comment__in=comments
+            ).values_list('comment_id', flat=True))
+            
+            for comment in comments:
+                comment.is_liked = comment.id in liked_comments
+        else:
+            for comment in comments:
+                comment.is_liked = False
 
         return context
 
@@ -351,7 +413,7 @@ class AdvancedSearchView(ListView):
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | 
-                Q(content__icontains=query)
+                Q(content__icontains=query) # Fixed missing '='
             )
         
         if category:
@@ -360,7 +422,7 @@ class AdvancedSearchView(ListView):
         if tags:
             queryset = queryset.filter(tags__slug__in=tags)
         
-        return queryset.annotate(comment_count=Count('comments')).order_by('-created_at')
+        return queryset.annotate(comment_count=Count('comments')).select_related('author').prefetch_related('categories', 'tags').order_by('-created_at')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -589,3 +651,56 @@ class CategoryListView(ListView):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         return context
+
+def search_autocomplete(request):
+    """API endpoint that returns search suggestions as user types."""
+    query = request.GET.get('q', '').strip()
+    results = []
+    
+    if query and len(query) >= 2:  # Only process queries with at least 2 characters
+        # Search in post titles with priority
+        title_results = Post.objects.filter(
+            title__icontains=query,
+            visibility='public',
+            status='published'
+        ).values('title', 'slug')[:5]
+        
+        # Add post titles to results
+        for post in title_results:
+            results.append({
+                'title': post['title'],
+                'url': reverse('blog:post_detail', kwargs={'slug': post['slug']}),
+                'type': 'post'
+            })
+            
+        # If we have fewer than 5 results, also search in categories
+        if len(results) < 5:
+            remaining = 5 - len(results)
+            category_results = Category.objects.filter(
+                name__icontains=query
+            ).values('name', 'slug')[:remaining]
+            
+            # Add categories to results
+            for category in category_results:
+                results.append({
+                    'title': category['name'],
+                    'url': reverse('blog:category_detail', kwargs={'slug': category['slug']}),
+                    'type': 'category'
+                })
+        
+        # If we still have fewer than 5 results, also search in tags
+        if len(results) < 5:
+            remaining = 5 - len(results)
+            tag_results = Tag.objects.filter(
+                name__icontains=query
+            ).values('name', 'slug')[:remaining]
+            
+            # Add tags to results
+            for tag in tag_results:
+                results.append({
+                    'title': tag['name'],
+                    'url': reverse('blog:tag_detail', kwargs={'slug': tag['slug']}),
+                    'type': 'tag'
+                })
+    
+    return JsonResponse({'results': results})

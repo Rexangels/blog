@@ -1,0 +1,678 @@
+/* Custom styles extracted from base.html <style> tag */
+html {
+    scroll-behavior: smooth;
+}
+body {
+    /* font-family, line-height, color, background-color are set in main.css */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 16px; /* Base font size */
+}
+main {
+    flex-grow: 1;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--text-color); /* Use text color variable */
+}
+a {
+    /* color is set in main.css */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+a:hover {
+    color: var(--primary-hover); /* Use primary hover variable */
+    text-decoration: underline;
+}
+pre, code, kbd, samp { /* Consistent mono font */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+}
+
+/* Accessibility: Better Focus Indicators */
+:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.2);
+    border-radius: 0.25rem;
+    transition: outline-offset 0.1s ease;
+    text-decoration: none;
+}
+
+/* Specific focus styles for nav items */
+.nav-link:focus-visible {
+    outline-offset: 4px;
+}
+
+/* Focus within for improved form element highlighting */
+.form-control:focus-visible, 
+.btn:focus-visible,
+.form-check-input:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip to content link enhancement */
+.visually-hidden-focusable:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+}
+
+/*--------------------------------------------------------------
+# Navbar
+--------------------------------------------------------------*/
+.navbar {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0.75rem 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+.navbar-brand:hover {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.navbar-brand i {
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    color: var(--gray-700);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.nav-link i {
+     font-size: 1rem;
+     line-height: 1;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.nav-link.active {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+    position: relative;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+    opacity: 0.8;
+}
+
+.dropdown-menu {
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    background-color: var(--card-bg);
+}
+.dropdown-item {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    color: var(--text-color);
+}
+.dropdown-item i {
+    width: 1.25rem;
+    text-align: center;
+    color: var(--secondary-color);
+    transition: color 0.2s ease;
+}
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+}
+.dropdown-item:hover i, .dropdown-item:focus i {
+    color: var(--primary-color);
+}
+.dropdown-divider {
+     margin: 0.5rem 0;
+     border-top-color: var(--border-color);
+}
+
+/* Theme toggle button specific styles */
+#theme-toggle .bi-sun-fill {
+    display: none; /* Hide sun icon by default in light mode */
+}
+
+body.dark-mode #theme-toggle .bi-moon-stars-fill {
+    display: none; /* Hide moon icon in dark mode */
+}
+
+body.dark-mode #theme-toggle .bi-sun-fill {
+    display: inline-block; /* Show sun icon in dark mode */
+}
+
+/* Additional hover effect for theme toggle */
+#theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+body.dark-mode #theme-toggle:hover {
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Navigation Improvements */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    body.dark-mode .navbar-collapse {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.8rem 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .search-form-mobile {
+        margin: 0.75rem 0;
+    }
+    
+    /* Improve spacing between nav items */
+    .navbar-nav {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+/* Better touch targets for mobile */
+@media (max-width: 767.98px) {
+    .btn, .dropdown-item, .nav-link {
+        min-height: 44px; /* Apple's recommended minimum touch target size */
+        display: flex;
+        align-items: center;
+    }
+    
+    .dropdown-item {
+        padding: 0.7rem 1rem;
+    }
+}
+
+/* Enhanced Card Interactions */
+.card {
+    /* ...existing code... */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    will-change: transform;
+}
+
+/* Add enhanced hover effects for different card types */
+.featured-post {
+    overflow: hidden;
+}
+
+.featured-post .card-img-top {
+    transition: transform 0.5s ease;
+}
+
+.featured-post:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.featured-post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .featured-post:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Regular post cards */
+.card:not(.featured-post):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+}
+
+body.dark-mode .card:not(.featured-post):hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Interactive elements within cards */
+.card .btn {
+    transition: all 0.3s ease;
+}
+
+.card .btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+/* Badge hover effects */
+a.badge {
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+a.badge:hover {
+    transform: translateY(-1px) scale(1.05);
+}
+
+/* Link hover effect inside cards */
+.card a:not(.btn):not(.badge):hover {
+    color: var(--primary-color);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+/* Page Transitions and Loading States */
+.fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+    animation-duration: 0.7s;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced fade-in animation */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeleton loading state for content */
+.skeleton-loading {
+    position: relative;
+    background-color: var(--gray-100);
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.skeleton-loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+body.dark-mode .skeleton-loading {
+    background-color: var(--gray-700);
+}
+
+body.dark-mode .skeleton-loading::after {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        rgba(255, 255, 255, 0) 100%);
+}
+
+/* Back to Top Button */
+#back-to-top {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#back-to-top.show {
+    opacity: 0.85;
+    transform: translateY(0);
+}
+
+#back-to-top:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+body.dark-mode #back-to-top {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 767.98px) {
+    #back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 42px;
+        height: 42px;
+    }
+}
+
+/* Form Enhancements */
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+
+.form-control::placeholder {
+    opacity: 0.6;
+    font-size: 0.9em;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.15);
+    border-radius: 0.375rem;
+}
+
+/* Form validation styles */
+.invalid-feedback {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.form-control.is-invalid {
+    background-image: none; /* Remove default Bootstrap validation icon */
+    padding-right: 0.75rem;
+}
+
+.form-control.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+/* Custom checkbox and radio styling */
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+
+/* Search form enhancement */
+.search-form-container {
+    position: relative;
+}
+
+.search-form-container .form-control {
+    padding-left: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.search-form-container .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+.search-form-container .form-control:focus + .search-icon {
+    color: var(--primary-color);
+}
+
+/* Password strength indicator */
+.password-strength-meter {
+    height: 4px;
+    background-color: var(--gray-200);
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.password-strength-meter .strength-value {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-strength-meter.weak .strength-value {
+    width: 25%;
+    background-color: var(--bs-danger);
+}
+
+.password-strength-meter.medium .strength-value {
+    width: 50%;
+    background-color: var(--bs-warning);
+}
+
+.password-strength-meter.strong .strength-value {
+    width: 75%;
+    background-color: var(--bs-info);
+}
+
+.password-strength-meter.very-strong .strength-value {
+    width: 100%;
+    background-color: var(--bs-success);
+}
+
+/* Footer Enhancements */
+.footer {
+    background-color: var(--gray-800);
+    color: var(--gray-300);
+    padding: 3.5rem 0 1.5rem;
+    margin-top: 4rem;
+    border-top: 1px solid var(--gray-700);
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    position: relative;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+}
+
+.footer h5 {
+    color: var(--light-text);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+.footer p {
+    color: var(--gray-400);
+    line-height: 1.7;
+}
+
+.footer a {
+    color: var(--gray-300);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: var(--primary-color);
+    transform: translateX(3px);
+    text-decoration: none;
+}
+
+.footer .list-unstyled li {
+    margin-bottom: 0.6rem;
+    transition: transform 0.3s ease;
+}
+
+.footer .list-unstyled li:hover {
+    transform: translateX(3px);
+}
+
+.footer .list-unstyled a i {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-right: 0.3rem;
+    position: relative;
+    top: -1px;
+    transition: all 0.3s ease;
+}
+
+.footer .list-unstyled a:hover i {
+    opacity: 1;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.footer .social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--gray-300);
+    margin-right: 0.6rem;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.footer .social-links a:hover {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.footer .border-top {
+    border-top-color: var(--gray-700) !important;
+    margin-top: 2.5rem !important;
+    padding-top: 1.5rem !important;
+    transition: border-color 0.3s ease;
+}
+
+.footer .copyright-text {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+.footer .copyright-text i {
+    color: #ff5e5e;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.2); }
+    70% { transform: scale(1); }
+}
+
+@media (max-width: 767.98px) {
+    .footer h5 {
+        margin-top: 1.5rem;
+    }
+    
+    .footer .text-center {
+        text-align: center !important;
+    }
+    
+    .footer .social-links {
+        justify-content: center;
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Add breadcrumbs styling */
+.breadcrumb-container {
+    background-color: transparent;
+    padding: 0.75rem 0;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    font-family: "Bootstrap Icons";
+    content: "\F231"; /* chevron-right icon */
+    font-size: 0.7rem;
+    vertical-align: middle;
+    color: var(--gray-500);
+}
+
+.breadcrumb-item a {
+    color: var(--gray-600);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}

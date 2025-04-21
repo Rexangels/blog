@@ -1,0 +1,33 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Contact Us - {{ block.super }}{% endblock %}
+{% block meta_description %}Get in touch with the AI & Programming Blog team. We welcome your feedback, questions, and collaboration inquiries.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4">Contact Us</h1>
+            <p class="lead">We'd love to hear from you! Whether you have a question, feedback, suggestion, or a collaboration proposal, feel free to reach out.</p>
+            <hr class="my-4">
+
+            <h2>Get in Touch</h2>
+            <p>The best way to contact us is via email:</p>
+            <p><a href="mailto:contact@example.com" class="btn btn-primary"><i class="bi bi-envelope-fill me-2"></i> contact@example.com</a></p>
+            <p class="text-muted"><small>(Please replace contact@example.com with your actual contact email address)</small></p>
+
+            <h2 class="mt-5">Social Media</h2>
+            <p>You can also connect with us on social media:</p>
+            {# Use the same links as in the footer for consistency #}
+            <div class="d-flex gap-2">
+                 <a href="#" class="btn btn-outline-primary" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer"><i class="bi bi-twitter-x"></i> Twitter / X</a>
+                 <a href="#" class="btn btn-outline-primary" aria-label="GitHub" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i> GitHub</a>
+                 <a href="#" class="btn btn-outline-primary" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="bi bi-linkedin"></i> LinkedIn</a>
+            </div>
+             <p class="text-muted mt-2"><small>(Remember to replace '#' with your actual social media profile URLs)</small></p>
+
+            <p class="mt-5">We try our best to respond to all inquiries as promptly as possible.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
